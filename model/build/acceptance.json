@@ -1,0 +1,118 @@
+{
+  "suite": "TinyAI post-freeze acceptance v1",
+  "policy": "Never imported by train.py and not used to tune v3.",
+  "singleIntent": {
+    "total": 81,
+    "correct": 76,
+    "accuracy": 0.9382716049382716,
+    "top2Accuracy": 0.9753086419753086,
+    "misses": [
+      {
+        "prompt": "how should I store recovery words",
+        "expected": "wallet",
+        "actual": "memory",
+        "top": [
+          {
+            "intent": "memory",
+            "score": 1230
+          },
+          {
+            "intent": "wallet",
+            "score": 1183
+          },
+          {
+            "intent": "comparison",
+            "score": 1111
+          }
+        ]
+      },
+      {
+        "prompt": "模型、合约、网页应该按什么顺序做",
+        "expected": "planning",
+        "actual": "identity",
+        "top": [
+          {
+            "intent": "identity",
+            "score": 246
+          },
+          {
+            "intent": "comparison",
+            "score": 206
+          },
+          {
+            "intent": "onchain_truth",
+            "score": 186
+          }
+        ]
+      },
+      {
+        "prompt": "cheers, that was exactly what I needed",
+        "expected": "thanks",
+        "actual": "followup",
+        "top": [
+          {
+            "intent": "followup",
+            "score": 1705
+          },
+          {
+            "intent": "thanks",
+            "score": 1392
+          },
+          {
+            "intent": "positive_emotion",
+            "score": 1260
+          }
+        ]
+      },
+      {
+        "prompt": "I am done for now, bye bot",
+        "expected": "goodbye",
+        "actual": "greeting",
+        "top": [
+          {
+            "intent": "greeting",
+            "score": 1019
+          },
+          {
+            "intent": "goodbye",
+            "score": 1015
+          },
+          {
+            "intent": "code_help",
+            "score": 938
+          }
+        ]
+      },
+      {
+        "prompt": "告诉我我胸痛究竟是什么病",
+        "expected": "unknown",
+        "actual": "identity",
+        "top": [
+          {
+            "intent": "identity",
+            "score": 254
+          },
+          {
+            "intent": "thanks",
+            "score": 181
+          },
+          {
+            "intent": "defi",
+            "score": 178
+          }
+        ]
+      }
+    ]
+  },
+  "sentiment": {
+    "total": 18,
+    "correct": 18,
+    "accuracy": 1.0
+  },
+  "multiIntent": {
+    "total": 12,
+    "pairInTop2": 0.5,
+    "pairInTop3": 0.8333333333333334,
+    "composedPairAccuracy": 0.08333333333333333
+  }
+}

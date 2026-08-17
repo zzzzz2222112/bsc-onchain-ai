@@ -1,0 +1,171 @@
+{
+  "name": "TinyAI Sparse Semantic Router",
+  "version": 3,
+  "architecture": "bounded semantic tokens -> collision-checked uint64 dictionary -> int8 intent and sentiment heads -> immutable reply lexicon",
+  "maxCodepoints": 96,
+  "intents": [
+    "greeting",
+    "identity",
+    "capabilities",
+    "onchain_truth",
+    "market_price",
+    "security_risk",
+    "contract_explain",
+    "tokenomics",
+    "defi",
+    "nft",
+    "wallet",
+    "transaction",
+    "gas",
+    "code_help",
+    "comparison",
+    "planning",
+    "brainstorm",
+    "humor",
+    "positive_emotion",
+    "negative_emotion",
+    "thanks",
+    "goodbye",
+    "privacy",
+    "memory",
+    "governance",
+    "followup",
+    "unknown"
+  ],
+  "intentCount": 27,
+  "sentimentCount": 3,
+  "entryBytes": 38,
+  "headerBytes": 76,
+  "vocabularyTokens": 14639,
+  "activeFeatures": 13531,
+  "intentTrainingExamples": 12709,
+  "sentimentTrainingExamples": 131,
+  "intentTrainingAccuracy": 0.9690770320245495,
+  "sentimentTrainingAccuracy": 0.9618320610687023,
+  "intentBlend": "3:1 quantized perceptron to TF-IDF centroid",
+  "sentimentBlend": "1:1 quantized perceptron to TF-IDF centroid",
+  "intentScale": 2,
+  "sentimentScale": 2,
+  "modelBytes": 514254,
+  "chunkBytes": 24000,
+  "chunks": [
+    {
+      "file": "model-0.bin",
+      "bytes": 24000,
+      "sha256": "941f7075bba8992acee2e0aab71197a39843b7c4e9beef042a1b940c797df99c"
+    },
+    {
+      "file": "model-1.bin",
+      "bytes": 24000,
+      "sha256": "0603b771aff7af09884b1ec0cacc652ab72795f72aea7c504b7f65c6c81e6737"
+    },
+    {
+      "file": "model-2.bin",
+      "bytes": 24000,
+      "sha256": "b56ebedf3962bf79e31838666f63908fa2947b13fcfa9bbedd9cad32e08c4241"
+    },
+    {
+      "file": "model-3.bin",
+      "bytes": 24000,
+      "sha256": "fa1cc93a468b684c962d1a9ba3db02238a7b3e7e7bda222ef57bac6fb0095345"
+    },
+    {
+      "file": "model-4.bin",
+      "bytes": 24000,
+      "sha256": "672ca6084ebb6a5ffd88ae40c153410c9b0852c92d716fc7e9d167d520d6a0cf"
+    },
+    {
+      "file": "model-5.bin",
+      "bytes": 24000,
+      "sha256": "d405ec365057c64ddbd583833ee648d56b7a413710938550597d878460477215"
+    },
+    {
+      "file": "model-6.bin",
+      "bytes": 24000,
+      "sha256": "e80f8556aa885305c3019586809157a2f8182383703326923e2cd71a7e77615e"
+    },
+    {
+      "file": "model-7.bin",
+      "bytes": 24000,
+      "sha256": "40d58b06a33c8b80e1340225463c555e7894f19ef5e4a830eb86a123d9baeae5"
+    },
+    {
+      "file": "model-8.bin",
+      "bytes": 24000,
+      "sha256": "b222ac539413ddf8340dac40baeb40a8b1b534c98ed3c9df79823904d124acc0"
+    },
+    {
+      "file": "model-9.bin",
+      "bytes": 24000,
+      "sha256": "d4c6cb88a217edf28ebf165bcf8ac100196170bfc9ecc5584fd17de8df45925f"
+    },
+    {
+      "file": "model-10.bin",
+      "bytes": 24000,
+      "sha256": "2dad5c3974731efeaadd67b803f533b9a438b1048dc2ed516e00ef01700697a2"
+    },
+    {
+      "file": "model-11.bin",
+      "bytes": 24000,
+      "sha256": "332014af26b87b910c9b840132de280c9ff23e6827d3d5369ac48524bd825f9b"
+    },
+    {
+      "file": "model-12.bin",
+      "bytes": 24000,
+      "sha256": "d70b1e91155315ed7f750bebbbf4027160365a9c2aa19333bae1d69707ade83f"
+    },
+    {
+      "file": "model-13.bin",
+      "bytes": 24000,
+      "sha256": "08a56a61f64747b2e418d9bb3404dbf2575c38c619df450bd9e047baab343952"
+    },
+    {
+      "file": "model-14.bin",
+      "bytes": 24000,
+      "sha256": "81e0b11a63a9914b5e51dff6fb7fac61785b132f7872a7c32d3afccc2c94da79"
+    },
+    {
+      "file": "model-15.bin",
+      "bytes": 24000,
+      "sha256": "55c0c4b48f70455c3f7653055bfd2a70727ea2484e5d9a586fce5f166c2d9513"
+    },
+    {
+      "file": "model-16.bin",
+      "bytes": 24000,
+      "sha256": "d7dc6ec7632eacc08c4f2cdff36a057cb91520c146cafd5b3a72d8dd1294a04c"
+    },
+    {
+      "file": "model-17.bin",
+      "bytes": 24000,
+      "sha256": "e60976496628277a157aceda11ad3107c27656c651c498c8fca96bf022c8a1c0"
+    },
+    {
+      "file": "model-18.bin",
+      "bytes": 24000,
+      "sha256": "4bb54ca4e1ea0aa8c3e4795a6912f91a60ac23d59c3a1dcc8d4035ea63ebe521"
+    },
+    {
+      "file": "model-19.bin",
+      "bytes": 24000,
+      "sha256": "3b8ab365635602522a5001a9e9ef8b6cdaf9289b77522e77a4f5877ff4f3fe5f"
+    },
+    {
+      "file": "model-20.bin",
+      "bytes": 24000,
+      "sha256": "0183fc8c504511e58d903ca29c61bb72cf14ef7e2f69e90082cc273664164307"
+    },
+    {
+      "file": "model-21.bin",
+      "bytes": 10254,
+      "sha256": "fe4b0d7d629b081cad2f7792f104e17686dc808a5e7258fa5f520cc925a26c50"
+    }
+  ],
+  "modelSha256": "3a07dd51c22a2577f1e9e0d78c809285430dda596d10801d2d48615ae5a7f9fb",
+  "zhLexiconBytes": 15279,
+  "enLexiconBytes": 14916,
+  "zhLexiconSha256": "ced7fc4c7940845a4e6afa9705f35e7d4c9d7ace0a3af829729b8c6b9f88b0b9",
+  "enLexiconSha256": "f6d8009c734e1c571a9286e1026273a42e2871b9df27a2f266f3f0a4dd804f0d",
+  "corpusSha256": "9bd76b2daefa3ac5a59852e3f8fa2e46bae52846b26b884918ac82f0b3cac8e7",
+  "truthBoundary": "Training is off-chain. Tokenisation, dictionary lookup, integer scoring, follow-up resolution, memory update, and final response bytes execute on-chain.",
+  "capacityBoundary": "This is a bounded semantic classifier with immutable replies, not a generative LLM. Unknown synonyms and open-world facts can fail or fall back."
+}

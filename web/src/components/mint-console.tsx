@@ -1,0 +1,376 @@
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  decodeEventLog,
+  defineChain,
+  formatEther,
+  http,
+  keccak256,
+  toBytes,
+  type Address,
+  type EIP1193Provider,
+  type Hash,
+} from "viem";
+import { brainRegistryAbi, componentsAbi, protocolAbi, type DeploymentConfig } from "@/lib/contracts";
+import { componentCards } from "@/lib/component-catalog";
+import { canAutoAddNetwork, switchOrAddNetwork } from "@/lib/wallet-network";
+import { GitHubLink } from "./github-link";
+import styles from "./protocol-console.module.css";
+
+type InjectedProvider = EIP1193Provider & {
+  on?: (event: string, listener: (...args: unknown[]) => void) => void;
+  removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
+};
+
+declare global { interface Window { ethereum?: InjectedProvider } }
+
+type Stage = "idle" | "connecting" | "simulating" | "signing" | "confirming" | "success" | "error";
+type Definition = {
+  effectKind: number;
+  slot: number;
+  power: number;
+  cap: bigint;
+  minted: bigint;
+  mintPrice: bigint;
+  publicMintEnabled: boolean;
+  exists: boolean;
+};
+type ProtocolMeta = {
+  totalSupply: bigint;
+  maxSupply: bigint;
+  mintPrice: bigint;
+  componentTotalMinted: bigint;
+  componentMaxSupply: bigint;
+  catalogSealed: boolean;
+  recommendedVersion: number;
+  versionLabel: string;
+  definitions: Record<number, Definition>;
+};
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as Address;
+
+function short(value?: string | null, left = 6, right = 4) {
+  if (!value) return "-";
+  return value.length <= left + right + 1 ? value : `${value.slice(0, left)}…${value.slice(-right)}`;
+}
+
+function explainError(error: unknown) {
+  const value = error as { shortMessage?: string; message?: string; code?: number };
+  if (value?.code === 4001) return "你在钱包里取消了这次操作。";
+  const message = value?.shortMessage || value?.message || "操作没有完成";
+  if (/insufficient funds/i.test(message)) return "钱包 BNB 不足，无法支付价格或 Gas。";
+  if (/AISupplyCapReached/i.test(message)) return "10,000 只 TinyAI 已全部诞生。";
+  if (/SupplyCapExceeded/i.test(message)) return "这种组件已经达到永久发行上限。";
+  if (/wrong chain|chain.*mismatch|network/i.test(message)) return "钱包网络不匹配，请先切换到 BNB Smart Chain。";
+  if (/user rejected|denied/i.test(message)) return "你在钱包里取消了这次操作。";
+  return message.split("\n")[0].slice(0, 220);
+}
+
+export function MintConsole({ config }: { config: DeploymentConfig }) {
+  const protocolAddress = config.protocolAddress || null;
+  const componentsAddress = config.componentsAddress || null;
+  const registryAddress = config.brainRegistryAddress || null;
+  const deployed = Boolean(protocolAddress && componentsAddress && registryAddress);
+  const chain = useMemo(() => defineChain({
+    id: config.chainId,
+    name: config.chainName,
+    nativeCurrency: { name: config.nativeSymbol, symbol: config.nativeSymbol, decimals: 18 },
+    rpcUrls: { default: { http: ["/api/rpc"] } },
+    blockExplorers: config.explorerBaseUrl ? { default: { name: "Explorer", url: config.explorerBaseUrl } } : undefined,
+  }), [config]);
+  const publicClient = useMemo(() => createPublicClient({
+    chain,
+    transport: http("/api/rpc", { batch: { batchSize: 10, wait: 5 } }),
+  }), [chain]);
+
+  const [account, setAccount] = useState<Address | null>(null);
+  const [walletChain, setWalletChain] = useState<number | null>(null);
+  const [stage, setStage] = useState<Stage>("idle");
+  const [action, setAction] = useState("等待操作");
+  const [error, setError] = useState("");
+  const [lastTx, setLastTx] = useState<Hash | null>(null);
+  const [meta, setMeta] = useState<ProtocolMeta | null>(null);
+  const [componentBalances, setComponentBalances] = useState<Record<number, bigint>>({});
+  const [name, setName] = useState("");
+  const [autoUpgrade, setAutoUpgrade] = useState(true);
+  const [lastMintedAI, setLastMintedAI] = useState<{ id: bigint; name: string } | null>(null);
+
+  const wrongChain = account !== null && walletChain !== null && walletChain !== config.chainId;
+  const busy = !["idle", "success", "error"].includes(stage);
+  const switchLabel = canAutoAddNetwork(config.walletRpcUrl)
+    ? `添加并切换到 ${config.chainName}`
+    : `切换到 ${config.chainName}`;
+
+  const loadMeta = useCallback(async () => {
+    if (!protocolAddress || !componentsAddress || !registryAddress) return;
+    try {
+      const [totalSupply, maxSupply, mintPrice, componentTotalMinted, componentMaxSupply, catalogSealed, recommendedVersion] = await Promise.all([
+        publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "totalSupply" }),
+        publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "MAX_AI_SUPPLY" }),
+        publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "mintPrice" }),
+        publicClient.readContract({ address: componentsAddress, abi: componentsAbi, functionName: "totalMinted" }),
+        publicClient.readContract({ address: componentsAddress, abi: componentsAbi, functionName: "MAX_COMPONENT_SUPPLY" }),
+        publicClient.readContract({ address: componentsAddress, abi: componentsAbi, functionName: "catalogSealed" }),
+        publicClient.readContract({ address: registryAddress, abi: brainRegistryAbi, functionName: "recommendedVersion" }),
+      ]);
+      const [release, definitions] = await Promise.all([
+        publicClient.readContract({ address: registryAddress, abi: brainRegistryAbi, functionName: "versionInfo", args: [recommendedVersion] }),
+        Promise.all(componentCards.map(({ id }) => publicClient.readContract({
+          address: componentsAddress,
+          abi: componentsAbi,
+          functionName: "definition",
+          args: [BigInt(id)],
+        }))),
+      ]);
+      const byId: Record<number, Definition> = {};
+      definitions.forEach((definition, index) => { byId[componentCards[index].id] = definition as Definition; });
+      setMeta({
+        totalSupply,
+        maxSupply,
+        mintPrice,
+        componentTotalMinted,
+        componentMaxSupply,
+        catalogSealed,
+        recommendedVersion,
+        versionLabel: release.label,
+        definitions: byId,
+      });
+    } catch (cause) {
+      setError(`读取铸造状态失败：${explainError(cause)}`);
+    }
+  }, [componentsAddress, protocolAddress, publicClient, registryAddress]);
+
+  const loadBalances = useCallback(async (owner: Address | null) => {
+    if (!owner || !componentsAddress) { setComponentBalances({}); return; }
+    try {
+      const values = await Promise.all(componentCards.map(({ id }) => publicClient.readContract({
+        address: componentsAddress,
+        abi: componentsAbi,
+        functionName: "balanceOf",
+        args: [owner, BigInt(id)],
+      })));
+      const balances: Record<number, bigint> = {};
+      values.forEach((balance, index) => { balances[componentCards[index].id] = balance; });
+      setComponentBalances(balances);
+    } catch (cause) {
+      setError(`读取组件余额失败：${explainError(cause)}`);
+    }
+  }, [componentsAddress, publicClient]);
+
+  useEffect(() => {
+    const task = window.setTimeout(() => { if (deployed) void loadMeta(); }, 0);
+    return () => window.clearTimeout(task);
+  }, [deployed, loadMeta]);
+
+  useEffect(() => {
+    const task = window.setTimeout(() => { void loadBalances(account); }, 0);
+    return () => window.clearTimeout(task);
+  }, [account, loadBalances]);
+
+  useEffect(() => {
+    const injected = window.ethereum;
+    if (!injected) return;
+    let cancelled = false;
+    const accountsChanged = (...args: unknown[]) => setAccount(((args[0] as string[])?.[0] as Address) || null);
+    const chainChanged = (...args: unknown[]) => setWalletChain(Number(BigInt(args[0] as string)));
+    const disconnected = () => { setAccount(null); setWalletChain(null); };
+    injected.on?.("accountsChanged", accountsChanged);
+    injected.on?.("chainChanged", chainChanged);
+    injected.on?.("disconnect", disconnected);
+    void Promise.all([
+      injected.request({ method: "eth_accounts" }) as Promise<string[]>,
+      injected.request({ method: "eth_chainId" }) as Promise<string>,
+    ]).then(([accounts, chainId]) => {
+      if (cancelled) return;
+      setAccount((accounts?.[0] as Address) || null);
+      setWalletChain(Number(BigInt(chainId)));
+    }).catch(() => { /* Disconnected state is explicit in the UI. */ });
+    return () => {
+      cancelled = true;
+      injected.removeListener?.("accountsChanged", accountsChanged);
+      injected.removeListener?.("chainChanged", chainChanged);
+      injected.removeListener?.("disconnect", disconnected);
+    };
+  }, []);
+
+  async function connectWallet() {
+    setError("");
+    if (!window.ethereum) { setStage("error"); setError("没有检测到浏览器钱包。安装或打开钱包扩展后再连接。"); return; }
+    setStage("connecting");
+    setAction("连接钱包");
+    try {
+      const wallet = createWalletClient({ chain, transport: custom(window.ethereum) });
+      const [selected] = await wallet.requestAddresses();
+      setAccount(selected);
+      setWalletChain(await wallet.getChainId());
+      setStage("idle");
+    } catch (cause) { setStage("error"); setError(explainError(cause)); }
+  }
+
+  async function switchNetwork() {
+    if (!window.ethereum) return;
+    setError("");
+    setAction("切换钱包网络");
+    setStage("connecting");
+    try {
+      setWalletChain(await switchOrAddNetwork(window.ethereum, config));
+      setStage("idle");
+    } catch (cause) {
+      setStage("error");
+      setError(`切换网络失败：${explainError(cause)}`);
+    }
+  }
+
+  async function transact(label: string, prepare: (wallet: ReturnType<typeof createWalletClient>, user: Address) => Promise<Hash>) {
+    setError("");
+    setLastTx(null);
+    if (!account || !window.ethereum) { setStage("error"); setError("请先连接钱包。"); return null; }
+    if (wrongChain) { setStage("error"); setError(`请先切换到 ${config.chainName}。`); return null; }
+    setAction(label);
+    setStage("simulating");
+    try {
+      const wallet = createWalletClient({ account, chain, transport: custom(window.ethereum) });
+      const hash = await prepare(wallet, account);
+      setLastTx(hash);
+      setStage("confirming");
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+        confirmations: 1,
+        onReplaced: ({ transaction }) => setLastTx(transaction.hash),
+      });
+      if (receipt.status !== "success") throw new Error("交易执行失败。");
+      setStage("success");
+      await loadMeta();
+      return receipt;
+    } catch (cause) {
+      setStage("error");
+      setError(explainError(cause));
+      return null;
+    }
+  }
+
+  async function mintAI(event: FormEvent) {
+    event.preventDefault();
+    if (!protocolAddress || !meta) return;
+    const mintedName = name.trim();
+    if (!mintedName) { setStage("error"); setError("先给这只 AI 起一个名字。"); return; }
+    const seed = keccak256(toBytes(`${account || ZERO_ADDRESS}:${mintedName}:${crypto.randomUUID()}`));
+    const receipt = await transact("Mint 一只新 AI", async (wallet, user) => {
+      const simulation = await publicClient.simulateContract({
+        account: user,
+        address: protocolAddress,
+        abi: protocolAbi,
+        functionName: "mintAI",
+        args: [mintedName, seed, autoUpgrade],
+        value: meta.mintPrice,
+      });
+      setStage("signing");
+      return wallet.writeContract(simulation.request);
+    });
+    if (!receipt) return;
+    for (const log of receipt.logs) {
+      try {
+        const decoded = decodeEventLog({ abi: protocolAbi, data: log.data, topics: log.topics });
+        if (decoded.eventName !== "AIBorn") continue;
+        setLastMintedAI({ id: decoded.args.aiId, name: mintedName });
+        setName("");
+        break;
+      } catch { /* Other receipt logs are expected. */ }
+    }
+  }
+
+  async function mintComponent(componentId: number) {
+    if (!componentsAddress || !meta) return;
+    const definition = meta.definitions[componentId];
+    const receipt = await transact(`Mint ${componentCards.find((item) => item.id === componentId)?.name}`, async (wallet, user) => {
+      const simulation = await publicClient.simulateContract({
+        account: user,
+        address: componentsAddress,
+        abi: componentsAbi,
+        functionName: "publicMint",
+        args: [BigInt(componentId), 1n],
+        value: definition.mintPrice,
+      });
+      setStage("signing");
+      return wallet.writeContract(simulation.request);
+    });
+    if (receipt) await loadBalances(account);
+  }
+
+  return <main className={styles.page}>
+    <header className={styles.header}>
+      <Link className={styles.brand} href="/protocol"><span className={styles.mark}>T</span><span>TinyAI Protocol</span></Link>
+      <nav><Link href="/protocol">Mint</Link><Link href="/my-ai">我的 AI</Link><Link href="/market">Market</Link><GitHubLink /><Link href="/docs">Docs</Link></nav>
+      <div className={styles.walletArea}>
+        <span><i className={deployed ? styles.online : styles.offline} />{config.chainName}</span>
+        <button type="button" onClick={connectWallet} disabled={stage === "connecting"}>{account ? short(account) : "连接钱包"}</button>
+      </div>
+    </header>
+
+    <section className={styles.intro}>
+      <p>ON-CHAIN LIFE PROTOCOL / MINT</p>
+      <h1>铸造你的 AI，<br />以及真正有用的组件。</h1>
+      <div className={styles.stats}>
+        <div><span>AI 供应</span><strong>{meta ? `${meta.totalSupply.toString()} / ${meta.maxSupply.toLocaleString()}` : "-"}</strong></div>
+        <div><span>推荐大脑</span><strong>{meta ? `V${meta.recommendedVersion}` : "-"}</strong></div>
+        <div><span>组件供应</span><strong>{meta ? `${meta.componentTotalMinted.toString()} / ${meta.componentMaxSupply.toLocaleString()}` : "-"}</strong></div>
+      </div>
+    </section>
+
+    {!deployed && <section className={styles.notice} role="status"><strong>当前环境没有完整协议地址，Mint 已禁用。</strong></section>}
+    {wrongChain && <section className={styles.notice} role="alert">
+      <div><strong>钱包网络不匹配</strong><p>钱包当前是 Chain {walletChain}，Mint 使用 {config.chainName}（Chain {config.chainId}）。</p></div>
+      <button type="button" onClick={switchNetwork} disabled={busy}>{switchLabel}</button>
+    </section>}
+    {(error || stage !== "idle") && <section className={`${styles.status} ${error ? styles.statusError : ""}`} aria-live="polite">
+      <span>{error || `${action} · ${stage === "simulating" ? "模拟中" : stage === "signing" ? "等待钱包确认" : stage === "confirming" ? "等待区块确认" : stage === "success" ? "已完成" : "处理中"}`}</span>
+      {lastTx && config.explorerBaseUrl && <a href={`${config.explorerBaseUrl}/tx/${lastTx}`} target="_blank" rel="noreferrer">查看交易 ↗</a>}
+      {(error || stage === "success") && <button type="button" onClick={() => { setError(""); setStage("idle"); }}>关闭</button>}
+    </section>}
+
+    <div className={styles.grid}>
+      <section className={styles.card}>
+        <div className={styles.cardHead}><span>01</span><div><h2>Mint AI</h2><p>每只 AI 都有独立编号、DNA、性格、记忆和大脑版本。</p></div></div>
+        <form className={styles.form} onSubmit={mintAI}>
+          <label>名字<input value={name} onChange={(event) => setName(event.target.value)} placeholder="例如 MOMO" maxLength={20} /></label>
+          <label className={styles.check}><input type="checkbox" checked={autoUpgrade} onChange={(event) => setAutoUpgrade(event.target.checked)} />未来发布更强大脑时自动升级</label>
+          <button className={styles.primary} type="submit" disabled={!deployed || busy || !account || wrongChain || !meta || meta.totalSupply >= meta.maxSupply}>
+            {!account ? "先连接钱包" : meta && meta.totalSupply >= meta.maxSupply ? "10,000 只已全部 Mint" : `Mint AI · ${meta ? formatEther(meta.mintPrice) : "-"} ${config.nativeSymbol}`}
+          </button>
+          <small>不限每个钱包的数量。Mint 完成后，到“我的 AI”查看你拥有的全部 AI。</small>
+        </form>
+      </section>
+
+      <section className={styles.card}>
+        <div className={styles.cardHead}><span>02</span><div><h2>铸造完成后</h2><p>房间和融合都属于具体 AI，不在 Mint 页面混用。</p></div></div>
+        {lastMintedAI ? <div className={styles.identity}>
+          <div className={styles.avatar}>T<span>#{lastMintedAI.id.toString()}</span></div>
+          <div><h3>{lastMintedAI.name}</h3><p>AI #{lastMintedAI.id.toString()} 已归入当前钱包</p></div>
+          <em>Mint 成功</em>
+        </div> : <p className={styles.empty}>连接钱包并 Mint；一只钱包可以拥有多只 AI。</p>}
+        <Link className={styles.chatRoomLink} href="/my-ai"><span>查看当前钱包拥有的全部 AI</span><b>MY AI →</b></Link>
+      </section>
+    </div>
+
+    <section className={styles.card}>
+      <div className={styles.cardHead}><span>03</span><div><h2>Mint 组件</h2><p>这里只铸造组件。进入某只自己的 AI 房间后，再把组件融合给那一只 AI。</p></div><Link className={styles.marketLink} href="/market">进入组件市场</Link></div>
+      <div className={styles.componentGrid}>{componentCards.map((item) => {
+        const definition = meta?.definitions[item.id];
+        const balance = componentBalances[item.id] || 0n;
+        return <article key={item.id}>
+          <div><b>0{item.id}</b><span>钱包持有 {balance.toString()}</span></div>
+          <h3>{item.name}</h3><p>{item.effect}</p>
+          <small>{definition ? `${formatEther(definition.mintPrice)} ${config.nativeSymbol} · ${definition.minted}/${definition.cap}` : "读取中"}</small>
+          <div><button className={styles.primary} type="button" onClick={() => { void mintComponent(item.id); }} disabled={!definition?.publicMintEnabled || !meta?.catalogSealed || definition.minted >= definition.cap || !account || wrongChain || busy}>{definition && definition.minted >= definition.cap ? "售罄" : "Mint 1 个"}</button></div>
+        </article>;
+      })}</div>
+    </section>
+
+    <footer><span>TINYAI LIFE PROTOCOL</span><span>{meta?.versionLabel || config.buildLabel}</span><span>MINT ONLY / FUSE IN MY AI</span></footer>
+  </main>;
+}

@@ -1,0 +1,29 @@
+.DS_Store
+*.log
+*.tmp
+/tmp/
+
+# Local and superseded release records. Canonical protocol records live in
+# contracts/deployments/.
+/deployments/
+
+# Secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+**/.env.local
+
+# Foundry dependencies and generated data
+contracts/lib/
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+contracts/verification/
+
+# Next.js generated data
+web/.next/
+web/node_modules/
+
+# Python generated data
+__pycache__/
+*.pyc

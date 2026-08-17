@@ -1,0 +1,252 @@
+[
+  {
+    "prompt": "你好，你是谁",
+    "intentId": 0,
+    "intent": "greeting",
+    "sentiment": 2,
+    "recognizedFeatures": 4,
+    "margin": 6,
+    "top": [
+      {
+        "intentId": 0,
+        "intent": "greeting",
+        "score": 26
+      },
+      {
+        "intentId": 1,
+        "intent": "identity",
+        "score": 20
+      },
+      {
+        "intentId": 18,
+        "intent": "positive_emotion",
+        "score": 17
+      }
+    ]
+  },
+  {
+    "prompt": "这次聊天真的在链上推理吗",
+    "intentId": 3,
+    "intent": "onchain_truth",
+    "sentiment": 0,
+    "recognizedFeatures": 27,
+    "margin": 48,
+    "top": [
+      {
+        "intentId": 3,
+        "intent": "onchain_truth",
+        "score": 87
+      },
+      {
+        "intentId": 22,
+        "intent": "privacy",
+        "score": 39
+      },
+      {
+        "intentId": 12,
+        "intent": "gas",
+        "score": 38
+      }
+    ]
+  },
+  {
+    "prompt": "一次聊天需要多少 Gas",
+    "intentId": 12,
+    "intent": "gas",
+    "sentiment": 1,
+    "recognizedFeatures": 14,
+    "margin": 74,
+    "top": [
+      {
+        "intentId": 12,
+        "intent": "gas",
+        "score": 113
+      },
+      {
+        "intentId": 23,
+        "intent": "memory",
+        "score": 39
+      },
+      {
+        "intentId": 21,
+        "intent": "goodbye",
+        "score": 34
+      }
+    ]
+  },
+  {
+    "prompt": "管理员能升级模型吗",
+    "intentId": 24,
+    "intent": "governance",
+    "sentiment": 0,
+    "recognizedFeatures": 12,
+    "margin": 117,
+    "top": [
+      {
+        "intentId": 24,
+        "intent": "governance",
+        "score": 161
+      },
+      {
+        "intentId": 1,
+        "intent": "identity",
+        "score": 44
+      },
+      {
+        "intentId": 14,
+        "intent": "comparison",
+        "score": 38
+      }
+    ]
+  },
+  {
+    "prompt": "我今天终于成功了",
+    "intentId": 18,
+    "intent": "positive_emotion",
+    "sentiment": 2,
+    "recognizedFeatures": 14,
+    "margin": 98,
+    "top": [
+      {
+        "intentId": 18,
+        "intent": "positive_emotion",
+        "score": 134
+      },
+      {
+        "intentId": 21,
+        "intent": "goodbye",
+        "score": 36
+      },
+      {
+        "intentId": 26,
+        "intent": "unknown",
+        "score": 36
+      }
+    ]
+  },
+  {
+    "prompt": "我的交易为什么失败",
+    "intentId": 11,
+    "intent": "transaction",
+    "sentiment": 0,
+    "recognizedFeatures": 12,
+    "margin": 60,
+    "top": [
+      {
+        "intentId": 11,
+        "intent": "transaction",
+        "score": 98
+      },
+      {
+        "intentId": 2,
+        "intent": "capabilities",
+        "score": 38
+      },
+      {
+        "intentId": 19,
+        "intent": "negative_emotion",
+        "score": 38
+      }
+    ]
+  },
+  {
+    "prompt": "How do I protect my wallet?",
+    "intentId": 10,
+    "intent": "wallet",
+    "sentiment": 0,
+    "recognizedFeatures": 1,
+    "margin": 21,
+    "top": [
+      {
+        "intentId": 10,
+        "intent": "wallet",
+        "score": 34
+      },
+      {
+        "intentId": 23,
+        "intent": "memory",
+        "score": 13
+      },
+      {
+        "intentId": 17,
+        "intent": "humor",
+        "score": 10
+      }
+    ]
+  },
+  {
+    "prompt": "Tell me the live BNB price",
+    "intentId": 4,
+    "intent": "market_price",
+    "sentiment": 0,
+    "recognizedFeatures": 3,
+    "margin": 72,
+    "top": [
+      {
+        "intentId": 4,
+        "intent": "market_price",
+        "score": 88
+      },
+      {
+        "intentId": 26,
+        "intent": "unknown",
+        "score": 16
+      },
+      {
+        "intentId": 12,
+        "intent": "gas",
+        "score": 14
+      }
+    ]
+  },
+  {
+    "prompt": "Can the model be upgraded?",
+    "intentId": 1,
+    "intent": "identity",
+    "sentiment": 0,
+    "recognizedFeatures": 1,
+    "margin": 7,
+    "top": [
+      {
+        "intentId": 1,
+        "intent": "identity",
+        "score": 43
+      },
+      {
+        "intentId": 24,
+        "intent": "governance",
+        "score": 36
+      },
+      {
+        "intentId": 14,
+        "intent": "comparison",
+        "score": 32
+      }
+    ]
+  },
+  {
+    "prompt": "Give me a fun onchain AI idea",
+    "intentId": 16,
+    "intent": "brainstorm",
+    "sentiment": 0,
+    "recognizedFeatures": 4,
+    "margin": 7,
+    "top": [
+      {
+        "intentId": 16,
+        "intent": "brainstorm",
+        "score": 55
+      },
+      {
+        "intentId": 14,
+        "intent": "comparison",
+        "score": 48
+      },
+      {
+        "intentId": 22,
+        "intent": "privacy",
+        "score": 24
+      }
+    ]
+  }
+]

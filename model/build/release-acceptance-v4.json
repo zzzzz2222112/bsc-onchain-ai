@@ -1,0 +1,520 @@
+{
+  "suite": "TinyAI refined sparse v3 exposed development regression v4",
+  "frozenCorpusSha256": "a8a59268ae648c7346d4a9c89e7dc89df917475c9f02cbd8080037975b3d3301",
+  "policy": "Originally independent for the 12,617-feature model; later failures informed refinement, so current results are development-only.",
+  "thresholds": {
+    "singleIntent": 0.8,
+    "singleTop2": 0.9,
+    "sentiment": 0.85,
+    "multiPairTop2": 0.6
+  },
+  "singleIntent": {
+    "total": 81,
+    "correct": 73,
+    "accuracy": 0.9012345679012346,
+    "top2Accuracy": 0.9506172839506173,
+    "misses": [
+      {
+        "prompt": "叩叩，住在合约里的家伙在家不",
+        "expected": "greeting",
+        "actual": "identity",
+        "top": [
+          {
+            "intentId": 1,
+            "intent": "identity",
+            "score": 42
+          },
+          {
+            "intentId": 6,
+            "intent": "contract_explain",
+            "score": 32
+          },
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 19
+          }
+        ]
+      },
+      {
+        "prompt": "储备很薄时一笔大交易怎样移动报价",
+        "expected": "defi",
+        "actual": "market_price",
+        "top": [
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 88
+          },
+          {
+            "intentId": 11,
+            "intent": "transaction",
+            "score": 80
+          },
+          {
+            "intentId": 8,
+            "intent": "defi",
+            "score": 79
+          }
+        ]
+      },
+      {
+        "prompt": "市场有挂牌却无人接盘算有流动性吗",
+        "expected": "nft",
+        "actual": "defi",
+        "top": [
+          {
+            "intentId": 8,
+            "intent": "defi",
+            "score": 106
+          },
+          {
+            "intentId": 9,
+            "intent": "nft",
+            "score": 57
+          },
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 55
+          }
+        ]
+      },
+      {
+        "prompt": "explain the difference between a cap and a per-unit rate",
+        "expected": "gas",
+        "actual": "comparison",
+        "top": [
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 28
+          },
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 22
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 20
+          }
+        ]
+      },
+      {
+        "prompt": "invent a repeatable loop unrelated to speculative price",
+        "expected": "brainstorm",
+        "actual": "market_price",
+        "top": [
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 56
+          },
+          {
+            "intentId": 16,
+            "intent": "brainstorm",
+            "score": 56
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 16
+          }
+        ]
+      },
+      {
+        "prompt": "给等待确认的我抖个机灵",
+        "expected": "humor",
+        "actual": "transaction",
+        "top": [
+          {
+            "intentId": 11,
+            "intent": "transaction",
+            "score": 58
+          },
+          {
+            "intentId": 17,
+            "intent": "humor",
+            "score": 49
+          },
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 11
+          }
+        ]
+      },
+      {
+        "prompt": "一想到授权可能出事就特别不安",
+        "expected": "negative_emotion",
+        "actual": "wallet",
+        "top": [
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 54
+          },
+          {
+            "intentId": 5,
+            "intent": "security_risk",
+            "score": 47
+          },
+          {
+            "intentId": 19,
+            "intent": "negative_emotion",
+            "score": 31
+          }
+        ]
+      },
+      {
+        "prompt": "旁观者能否把我的问题和转账行为串起来",
+        "expected": "privacy",
+        "actual": "transaction",
+        "top": [
+          {
+            "intentId": 11,
+            "intent": "transaction",
+            "score": 46
+          },
+          {
+            "intentId": 22,
+            "intent": "privacy",
+            "score": 32
+          },
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 29
+          }
+        ]
+      }
+    ]
+  },
+  "sentiment": {
+    "total": 18,
+    "correct": 18,
+    "accuracy": 1.0,
+    "misses": []
+  },
+  "multiIntent": {
+    "total": 12,
+    "pairInTop2": 0.8333333333333334,
+    "pairInTop3": 0.9166666666666666,
+    "results": [
+      {
+        "prompt": "先讲签名许可，再算这次调用成本",
+        "expected": [
+          "wallet",
+          "gas"
+        ],
+        "top": [
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 89
+          },
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 78
+          },
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 35
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "代理状态写在哪里，同时 owner 能否冻住资金",
+        "expected": [
+          "contract_explain",
+          "security_risk"
+        ],
+        "top": [
+          {
+            "intentId": 5,
+            "intent": "security_risk",
+            "score": 95
+          },
+          {
+            "intentId": 6,
+            "intent": "contract_explain",
+            "score": 70
+          },
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 57
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "地址会暴露哪些信息；下一轮又会保留什么",
+        "expected": [
+          "privacy",
+          "memory"
+        ],
+        "top": [
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 134
+          },
+          {
+            "intentId": 22,
+            "intent": "privacy",
+            "score": 105
+          },
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 62
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "我被失败折腾得很难受，还需要你帮忙调试测试",
+        "expected": [
+          "negative_emotion",
+          "code_help"
+        ],
+        "top": [
+          {
+            "intentId": 13,
+            "intent": "code_help",
+            "score": 142
+          },
+          {
+            "intentId": 19,
+            "intent": "negative_emotion",
+            "score": 132
+          },
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 15
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "contrast it with a cloud LLM and explain how nodes reproduce the output",
+        "expected": [
+          "comparison",
+          "onchain_truth"
+        ],
+        "top": [
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 68
+          },
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 45
+          },
+          {
+            "intentId": 6,
+            "intent": "contract_explain",
+            "score": 3
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "does the NFT media persist and can its approval endanger the wallet",
+        "expected": [
+          "nft",
+          "wallet"
+        ],
+        "top": [
+          {
+            "intentId": 9,
+            "intent": "nft",
+            "score": 131
+          },
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 48
+          },
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 19
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "设计费用销毁，同时想个能反复玩的角色机制",
+        "expected": [
+          "tokenomics",
+          "brainstorm"
+        ],
+        "top": [
+          {
+            "intentId": 16,
+            "intent": "brainstorm",
+            "score": 138
+          },
+          {
+            "intentId": 7,
+            "intent": "tokenomics",
+            "score": 97
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 68
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "my transfer remains unconfirmed and the execution charge looks huge",
+        "expected": [
+          "transaction",
+          "gas"
+        ],
+        "top": [
+          {
+            "intentId": 11,
+            "intent": "transaction",
+            "score": 53
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 23
+          },
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 10
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "排出主网上线阶段，再给一份合约测试思路",
+        "expected": [
+          "planning",
+          "code_help"
+        ],
+        "top": [
+          {
+            "intentId": 15,
+            "intent": "planning",
+            "score": 174
+          },
+          {
+            "intentId": 13,
+            "intent": "code_help",
+            "score": 81
+          },
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 45
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "explain pool price impact plus whether insiders can withdraw liquidity",
+        "expected": [
+          "defi",
+          "security_risk"
+        ],
+        "top": [
+          {
+            "intentId": 8,
+            "intent": "defi",
+            "score": 114
+          },
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 50
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 16
+          }
+        ],
+        "pairInTop2": false,
+        "pairInTop3": false
+      },
+      {
+        "prompt": "what kind of model are you and what work is outside your range",
+        "expected": [
+          "identity",
+          "capabilities"
+        ],
+        "top": [
+          {
+            "intentId": 1,
+            "intent": "identity",
+            "score": 63
+          },
+          {
+            "intentId": 24,
+            "intent": "governance",
+            "score": 33
+          },
+          {
+            "intentId": 2,
+            "intent": "capabilities",
+            "score": 28
+          }
+        ],
+        "pairInTop2": false,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "告诉我实时币价，并审查有没有限制卖出的权限",
+        "expected": [
+          "market_price",
+          "security_risk"
+        ],
+        "top": [
+          {
+            "intentId": 5,
+            "intent": "security_risk",
+            "score": 139
+          },
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 102
+          },
+          {
+            "intentId": 24,
+            "intent": "governance",
+            "score": 55
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      }
+    ]
+  }
+}

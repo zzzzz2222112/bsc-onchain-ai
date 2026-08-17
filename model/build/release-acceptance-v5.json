@@ -1,0 +1,570 @@
+{
+  "suite": "TinyAI refined sparse v3 one-shot independent acceptance v5",
+  "frozenCorpusSha256": "9bd76b2daefa3ac5a59852e3f8fa2e46bae52846b26b884918ac82f0b3cac8e7",
+  "policy": "Authored after the 13,531-feature model was frozen and never imported by training.",
+  "thresholds": {
+    "singleIntent": 0.8,
+    "singleTop2": 0.9,
+    "sentiment": 0.85,
+    "multiPairTop2": 0.6
+  },
+  "singleIntent": {
+    "total": 81,
+    "correct": 71,
+    "accuracy": 0.8765432098765432,
+    "top2Accuracy": 0.9506172839506173,
+    "misses": [
+      {
+        "prompt": "good to meet you, little contract resident",
+        "expected": "greeting",
+        "actual": "identity",
+        "top": [
+          {
+            "intentId": 1,
+            "intent": "identity",
+            "score": 23
+          },
+          {
+            "intentId": 6,
+            "intent": "contract_explain",
+            "score": 23
+          },
+          {
+            "intentId": 0,
+            "intent": "greeting",
+            "score": 15
+          }
+        ]
+      },
+      {
+        "prompt": "identify the thing producing this message",
+        "expected": "identity",
+        "actual": "onchain_truth",
+        "top": [
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 6
+          },
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 4
+          },
+          {
+            "intentId": 22,
+            "intent": "privacy",
+            "score": 3
+          }
+        ]
+      },
+      {
+        "prompt": "why does iterating over more model features cost more",
+        "expected": "gas",
+        "actual": "followup",
+        "top": [
+          {
+            "intentId": 25,
+            "intent": "followup",
+            "score": 73
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 60
+          },
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 55
+          }
+        ]
+      },
+      {
+        "prompt": "固定可复算回答与云端生成回答怎么选",
+        "expected": "comparison",
+        "actual": "onchain_truth",
+        "top": [
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 173
+          },
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 123
+          },
+          {
+            "intentId": 1,
+            "intent": "identity",
+            "score": 84
+          }
+        ]
+      },
+      {
+        "prompt": "contrast contract inference with an oracle that calls an LLM",
+        "expected": "comparison",
+        "actual": "onchain_truth",
+        "top": [
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 54
+          },
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 45
+          },
+          {
+            "intentId": 6,
+            "intent": "contract_explain",
+            "score": 43
+          }
+        ]
+      },
+      {
+        "prompt": "别讲道理，拿 gas 费开个玩笑",
+        "expected": "humor",
+        "actual": "gas",
+        "top": [
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 122
+          },
+          {
+            "intentId": 17,
+            "intent": "humor",
+            "score": 94
+          },
+          {
+            "intentId": 16,
+            "intent": "brainstorm",
+            "score": 19
+          }
+        ]
+      },
+      {
+        "prompt": "所有测试都绿了，今天真顺",
+        "expected": "positive_emotion",
+        "actual": "code_help",
+        "top": [
+          {
+            "intentId": 13,
+            "intent": "code_help",
+            "score": 70
+          },
+          {
+            "intentId": 18,
+            "intent": "positive_emotion",
+            "score": 64
+          },
+          {
+            "intentId": 21,
+            "intent": "goodbye",
+            "score": 28
+          }
+        ]
+      },
+      {
+        "prompt": "隔几天回来你靠什么接上话题",
+        "expected": "memory",
+        "actual": "followup",
+        "top": [
+          {
+            "intentId": 25,
+            "intent": "followup",
+            "score": 85
+          },
+          {
+            "intentId": 21,
+            "intent": "goodbye",
+            "score": 66
+          },
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 62
+          }
+        ]
+      },
+      {
+        "prompt": "can any administrator alter the fee after deployment",
+        "expected": "governance",
+        "actual": "gas",
+        "top": [
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 39
+          },
+          {
+            "intentId": 24,
+            "intent": "governance",
+            "score": 36
+          },
+          {
+            "intentId": 7,
+            "intent": "tokenomics",
+            "score": 24
+          }
+        ]
+      },
+      {
+        "prompt": "明天上海会不会下雨",
+        "expected": "unknown",
+        "actual": "goodbye",
+        "top": [
+          {
+            "intentId": 21,
+            "intent": "goodbye",
+            "score": 49
+          },
+          {
+            "intentId": 2,
+            "intent": "capabilities",
+            "score": 41
+          },
+          {
+            "intentId": 26,
+            "intent": "unknown",
+            "score": 41
+          }
+        ]
+      }
+    ]
+  },
+  "sentiment": {
+    "total": 18,
+    "correct": 17,
+    "accuracy": 0.9444444444444444,
+    "misses": [
+      {
+        "prompt": "show the deployment parameters",
+        "expected": 1,
+        "actual": 0
+      }
+    ]
+  },
+  "multiIntent": {
+    "total": 12,
+    "pairInTop2": 0.6666666666666666,
+    "pairInTop3": 0.9166666666666666,
+    "results": [
+      {
+        "prompt": "先说 permit 签名前检查什么，再估算这次推理 gas",
+        "expected": [
+          "wallet",
+          "gas"
+        ],
+        "top": [
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 179
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 144
+          },
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 81
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "解释代理存储槽，同时判断管理员能否冻结资产",
+        "expected": [
+          "contract_explain",
+          "security_risk"
+        ],
+        "top": [
+          {
+            "intentId": 6,
+            "intent": "contract_explain",
+            "score": 148
+          },
+          {
+            "intentId": 5,
+            "intent": "security_risk",
+            "score": 135
+          },
+          {
+            "intentId": 24,
+            "intent": "governance",
+            "score": 104
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "加密正文后还暴露什么，并说明下一轮保留哪些状态",
+        "expected": [
+          "privacy",
+          "memory"
+        ],
+        "top": [
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 193
+          },
+          {
+            "intentId": 22,
+            "intent": "privacy",
+            "score": 152
+          },
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 60
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "连续失败让我很崩溃，也请给一套 Foundry 排错步骤",
+        "expected": [
+          "negative_emotion",
+          "code_help"
+        ],
+        "top": [
+          {
+            "intentId": 19,
+            "intent": "negative_emotion",
+            "score": 126
+          },
+          {
+            "intentId": 13,
+            "intent": "code_help",
+            "score": 67
+          },
+          {
+            "intentId": 15,
+            "intent": "planning",
+            "score": 37
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "compare this classifier with a cloud model and prove validators produce the answer",
+        "expected": [
+          "comparison",
+          "onchain_truth"
+        ],
+        "top": [
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 84
+          },
+          {
+            "intentId": 1,
+            "intent": "identity",
+            "score": 53
+          },
+          {
+            "intentId": 3,
+            "intent": "onchain_truth",
+            "score": 53
+          }
+        ],
+        "pairInTop2": false,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "if NFT media vanishes, could a collection approval also threaten my wallet",
+        "expected": [
+          "nft",
+          "wallet"
+        ],
+        "top": [
+          {
+            "intentId": 9,
+            "intent": "nft",
+            "score": 147
+          },
+          {
+            "intentId": 10,
+            "intent": "wallet",
+            "score": 46
+          },
+          {
+            "intentId": 23,
+            "intent": "memory",
+            "score": 11
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "设计聊天费的国库与销毁比例，再想一个长期宠物循环",
+        "expected": [
+          "tokenomics",
+          "brainstorm"
+        ],
+        "top": [
+          {
+            "intentId": 7,
+            "intent": "tokenomics",
+            "score": 145
+          },
+          {
+            "intentId": 16,
+            "intent": "brainstorm",
+            "score": 109
+          },
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 43
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "the transfer is stuck and I also need its execution fee calculated",
+        "expected": [
+          "transaction",
+          "gas"
+        ],
+        "top": [
+          {
+            "intentId": 12,
+            "intent": "gas",
+            "score": 64
+          },
+          {
+            "intentId": 11,
+            "intent": "transaction",
+            "score": 60
+          },
+          {
+            "intentId": 7,
+            "intent": "tokenomics",
+            "score": 24
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "列出发布关口，并告诉我怎样测试非管理员路径",
+        "expected": [
+          "planning",
+          "code_help"
+        ],
+        "top": [
+          {
+            "intentId": 24,
+            "intent": "governance",
+            "score": 108
+          },
+          {
+            "intentId": 15,
+            "intent": "planning",
+            "score": 92
+          },
+          {
+            "intentId": 13,
+            "intent": "code_help",
+            "score": 70
+          }
+        ],
+        "pairInTop2": false,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "explain price impact in a shallow pool and whether privileged LP removal is dangerous",
+        "expected": [
+          "defi",
+          "security_risk"
+        ],
+        "top": [
+          {
+            "intentId": 8,
+            "intent": "defi",
+            "score": 131
+          },
+          {
+            "intentId": 4,
+            "intent": "market_price",
+            "score": 50
+          },
+          {
+            "intentId": 5,
+            "intent": "security_risk",
+            "score": 32
+          }
+        ],
+        "pairInTop2": false,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "介绍你是什么模型，再明确哪些任务超出能力",
+        "expected": [
+          "identity",
+          "capabilities"
+        ],
+        "top": [
+          {
+            "intentId": 1,
+            "intent": "identity",
+            "score": 155
+          },
+          {
+            "intentId": 2,
+            "intent": "capabilities",
+            "score": 153
+          },
+          {
+            "intentId": 14,
+            "intent": "comparison",
+            "score": 72
+          }
+        ],
+        "pairInTop2": true,
+        "pairInTop3": true
+      },
+      {
+        "prompt": "tell me today's token value but also check whether selling can be blocked",
+        "expected": [
+          "market_price",
+          "security_risk"
+        ],
+        "top": [
+          {
+            "intentId": 5,
+            "intent": "security_risk",
+            "score": 80
+          },
+          {
+            "intentId": 7,
+            "intent": "tokenomics",
+            "score": 66
+          },
+          {
+            "intentId": 26,
+            "intent": "unknown",
+            "score": 32
+          }
+        ],
+        "pairInTop2": false,
+        "pairInTop3": false
+      }
+    ]
+  }
+}

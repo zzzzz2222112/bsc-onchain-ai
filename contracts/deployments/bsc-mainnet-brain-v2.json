@@ -1,0 +1,73 @@
+{
+  "status": "live",
+  "chainId": 56,
+  "network": "BSC mainnet",
+  "deployedAt": "2026-08-17",
+  "deployer": "0x399e137870fc5384256F9d4D1b9CDAec169Cb829",
+  "brainRegistry": "0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1",
+  "registryStateAfterDeployment": {
+    "latestVersion": 2,
+    "recommendedVersion": 2,
+    "engineForVersion2": "0xE45F1221EBaDb925062E1a706b16277943e7DAb0"
+  },
+  "reusedImmutableDependencies": {
+    "retrieverV5": "0x1fEC390578823717764285f10157370Aed7596b1",
+    "generatorV6ModelBlob": "0x859BB2e3b5921C666aeBB9E706EeAc5CBEe7783C",
+    "generatorV6LexiconBlob": "0x2E39472328A85b128A27009F46EC498E6965F736"
+  },
+  "contracts": {
+    "neuralDecoderV2": {
+      "address": "0xe4D2944f722F2c8d685F3934FB2310321281C7eF",
+      "runtimeBytes": 3858,
+      "runtimeCodeHash": "0xc53a33e25231d7e7a1affd4249ed7ebcb33f90a982684cee8f8bde7e3ea5c170",
+      "integrityOk": true
+    },
+    "brainEngineV2": {
+      "address": "0xE45F1221EBaDb925062E1a706b16277943e7DAb0",
+      "runtimeBytes": 4626,
+      "runtimeCodeHash": "0xac1ef46bb36e47205884677fc131f37e90cba4091cab2dfbd0c4194b3a8e2e19",
+      "engineVersion": 2,
+      "integrityOk": true
+    }
+  },
+  "transactions": [
+    {
+      "nonce": 106,
+      "hash": "0xb21102fc9ba776f725c7499dc8a7cf6611ad75ebf9a2b6c6086e571c5ec660e5",
+      "blockNumber": 116445837,
+      "action": "deploy TinyAINeuralDecoderV2",
+      "gasUsed": 913839,
+      "effectiveGasPriceWei": 50000000,
+      "status": 1
+    },
+    {
+      "nonce": 107,
+      "hash": "0x1b289ac05272bd77b338eedf620b1e92c9ed689af31d1145b04668b853d07ede",
+      "blockNumber": 116445843,
+      "action": "deploy TinyAIBrainEngineV2",
+      "gasUsed": 1239643,
+      "effectiveGasPriceWei": 50000000,
+      "status": 1
+    },
+    {
+      "nonce": 108,
+      "hash": "0x23082609517ab0f7de372df18568e33624d6b2a29177d7ee07a8671468fb76f7",
+      "blockNumber": 116445849,
+      "action": "publish Brain V2 and make recommended",
+      "gasUsed": 328624,
+      "effectiveGasPriceWei": 50000000,
+      "status": 1
+    }
+  ],
+  "nativeValueWei": "0",
+  "totalGasUsed": 2482106,
+  "actualGasCostWei": "124105300000000",
+  "actualGasCostBNB": "0.0001241053",
+  "confirmedMaximumBudgetBNB": "0.00033",
+  "postDeploymentChecks": {
+    "deployerNonce": 109,
+    "representativeProtocolEstimateGas": 8184499,
+    "representativeCallFitsBscTransactionGasLimit": true,
+    "bscTransactionGasLimit": 16777216
+  }
+}

@@ -1,0 +1,1560 @@
+{
+  "suite": "TinyAI sparse diagnostics over exposed v1 and v2 suites",
+  "policy": "These prompts were viewed during architecture selection and are not independent release acceptance evidence.",
+  "v1": {
+    "single": {
+      "total": 135,
+      "accuracy": 0.8740740740740741,
+      "top2Accuracy": 0.9407407407407408,
+      "misses": [
+        {
+          "prompt": "can this little model reason about anything useful",
+          "expected": "capabilities",
+          "actual": "identity",
+          "top": [
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 39
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 36
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 32
+            }
+          ]
+        },
+        {
+          "prompt": "what privileges should scare me in an upgradeable contract",
+          "expected": "security_risk",
+          "actual": "contract_explain",
+          "top": [
+            {
+              "intentId": 6,
+              "intent": "contract_explain",
+              "score": 20
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 16
+            },
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 12
+            }
+          ]
+        },
+        {
+          "prompt": "can a Solidity program fetch a normal website by itself",
+          "expected": "contract_explain",
+          "actual": "code_help",
+          "top": [
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 33
+            },
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 30
+            },
+            {
+              "intentId": 6,
+              "intent": "contract_explain",
+              "score": 28
+            }
+          ]
+        },
+        {
+          "prompt": "where does token metadata actually come from",
+          "expected": "nft",
+          "actual": "tokenomics",
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 45
+            },
+            {
+              "intentId": 9,
+              "intent": "nft",
+              "score": 38
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 26
+            }
+          ]
+        },
+        {
+          "prompt": "tx hash 能证明收款人实际收到币吗",
+          "expected": "transaction",
+          "actual": "tokenomics",
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 48
+            },
+            {
+              "intentId": 20,
+              "intent": "thanks",
+              "score": 41
+            },
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 34
+            }
+          ]
+        },
+        {
+          "prompt": "can calldata or model size make inference cheaper",
+          "expected": "gas",
+          "actual": "identity",
+          "top": [
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 40
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 35
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 34
+            }
+          ]
+        },
+        {
+          "prompt": "只会选词库答案还能称 AI 吗",
+          "expected": "comparison",
+          "actual": "onchain_truth",
+          "top": [
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 67
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 66
+            },
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 31
+            }
+          ]
+        },
+        {
+          "prompt": "map out the work from model training to BSC launch",
+          "expected": "planning",
+          "actual": "identity",
+          "top": [
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 41
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 38
+            },
+            {
+              "intentId": 15,
+              "intent": "planning",
+              "score": 37
+            }
+          ]
+        },
+        {
+          "prompt": "what is the smallest credible version we can ship",
+          "expected": "planning",
+          "actual": "governance",
+          "top": [
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 40
+            },
+            {
+              "intentId": 15,
+              "intent": "planning",
+              "score": 12
+            },
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 2
+            }
+          ]
+        },
+        {
+          "prompt": "先研究模型还是先发行代币",
+          "expected": "planning",
+          "actual": "tokenomics",
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 77
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 72
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 65
+            }
+          ]
+        },
+        {
+          "prompt": "有哪些别的合约可以直接调用它",
+          "expected": "brainstorm",
+          "actual": "onchain_truth",
+          "top": [
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 99
+            },
+            {
+              "intentId": 16,
+              "intent": "brainstorm",
+              "score": 40
+            },
+            {
+              "intentId": 25,
+              "intent": "followup",
+              "score": 38
+            }
+          ]
+        },
+        {
+          "prompt": "roast my absurd gas bill",
+          "expected": "humor",
+          "actual": "gas",
+          "top": [
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 73
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 56
+            },
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 2
+            }
+          ]
+        },
+        {
+          "prompt": "perfect, that answers my question",
+          "expected": "thanks",
+          "actual": "identity",
+          "top": [
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 32
+            },
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 17
+            },
+            {
+              "intentId": 20,
+              "intent": "thanks",
+              "score": 13
+            }
+          ]
+        },
+        {
+          "prompt": "can observers connect my questions to wallet activity",
+          "expected": "privacy",
+          "actual": "wallet",
+          "top": [
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 48
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 32
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 16
+            }
+          ]
+        },
+        {
+          "prompt": "does encrypting text hide who paid the transaction",
+          "expected": "privacy",
+          "actual": "transaction",
+          "top": [
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 62
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 47
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 16
+            }
+          ]
+        },
+        {
+          "prompt": "下一轮你怎么利用我刚才说的话",
+          "expected": "memory",
+          "actual": "followup",
+          "top": [
+            {
+              "intentId": 25,
+              "intent": "followup",
+              "score": 109
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 104
+            },
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 57
+            }
+          ]
+        },
+        {
+          "prompt": "keep going from your last answer",
+          "expected": "followup",
+          "actual": "onchain_truth",
+          "top": [
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 22
+            },
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 20
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 14
+            }
+          ]
+        }
+      ]
+    },
+    "sentiment": {
+      "total": 30,
+      "accuracy": 0.9333333333333333,
+      "misses": [
+        {
+          "prompt": "what does this output mean",
+          "expected": 1,
+          "actual": 0
+        },
+        {
+          "prompt": "tell me how the fee is calculated",
+          "expected": 1,
+          "actual": 0
+        }
+      ]
+    },
+    "multi": {
+      "total": 25,
+      "pairInTop2": 0.52,
+      "pairInTop3": 0.8,
+      "results": [
+        {
+          "prompt": "查完合约风险后顺便告诉我现在币价",
+          "expected": [
+            "security_risk",
+            "market_price"
+          ],
+          "top": [
+            {
+              "intentId": 4,
+              "intent": "market_price",
+              "score": 68
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 43
+            },
+            {
+              "intentId": 6,
+              "intent": "contract_explain",
+              "score": 35
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "先解释代理合约，再说管理员能不能跑路",
+          "expected": [
+            "contract_explain",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 6,
+              "intent": "contract_explain",
+              "score": 128
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 114
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 99
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "这个聊天费怎么算，收到的代币又去哪里",
+          "expected": [
+            "gas",
+            "tokenomics"
+          ],
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 155
+            },
+            {
+              "intentId": 21,
+              "intent": "goodbye",
+              "score": 79
+            },
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 54
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "连接钱包签名会不会付手续费",
+          "expected": [
+            "wallet",
+            "gas"
+          ],
+          "top": [
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 174
+            },
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 68
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 37
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "NFT mint 后卖不出去是不是骗局",
+          "expected": [
+            "nft",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 9,
+              "intent": "nft",
+              "score": 154
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 96
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 21
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "thanks, and tell me whether the model can be upgraded",
+          "expected": [
+            "thanks",
+            "governance"
+          ],
+          "top": [
+            {
+              "intentId": 20,
+              "intent": "thanks",
+              "score": 90
+            },
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 39
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 36
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "I am frustrated; help me debug the revert",
+          "expected": [
+            "negative_emotion",
+            "code_help"
+          ],
+          "top": [
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 47
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 32
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 8
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "compare this bot to ChatGPT and prove it is onchain",
+          "expected": [
+            "comparison",
+            "onchain_truth"
+          ],
+          "top": [
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 38
+            },
+            {
+              "intentId": 0,
+              "intent": "greeting",
+              "score": 29
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 26
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": false
+        },
+        {
+          "prompt": "how much gas does a token-paid question use",
+          "expected": [
+            "gas",
+            "tokenomics"
+          ],
+          "top": [
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 83
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 20
+            },
+            {
+              "intentId": 20,
+              "intent": "thanks",
+              "score": 18
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": false
+        },
+        {
+          "prompt": "brainstorm a DeFi game using this AI",
+          "expected": [
+            "brainstorm",
+            "defi"
+          ],
+          "top": [
+            {
+              "intentId": 16,
+              "intent": "brainstorm",
+              "score": 43
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 38
+            },
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 17
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": false
+        },
+        {
+          "prompt": "我很开心，顺便讲个笑话",
+          "expected": [
+            "positive_emotion",
+            "humor"
+          ],
+          "top": [
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 118
+            },
+            {
+              "intentId": 18,
+              "intent": "positive_emotion",
+              "score": 75
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 23
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "我先走了，记住今天聊的东西",
+          "expected": [
+            "goodbye",
+            "memory"
+          ],
+          "top": [
+            {
+              "intentId": 21,
+              "intent": "goodbye",
+              "score": 95
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 29
+            },
+            {
+              "intentId": 26,
+              "intent": "unknown",
+              "score": 27
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "这聊天匿名吗，换钱包还认得我不",
+          "expected": [
+            "privacy",
+            "memory"
+          ],
+          "top": [
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 97
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 84
+            },
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 57
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "给我路线图，还要说明第一版合约怎么写",
+          "expected": [
+            "planning",
+            "code_help"
+          ],
+          "top": [
+            {
+              "intentId": 15,
+              "intent": "planning",
+              "score": 110
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 69
+            },
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 59
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "你是谁以及到底能干嘛",
+          "expected": [
+            "identity",
+            "capabilities"
+          ],
+          "top": [
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 36
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 22
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 21
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": false
+        },
+        {
+          "prompt": "what is an AMM and can the admin drain its pool",
+          "expected": [
+            "defi",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 8,
+              "intent": "defi",
+              "score": 70
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 22
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 14
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "show the latest price and audit the token for rug risk",
+          "expected": [
+            "market_price",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 4,
+              "intent": "market_price",
+              "score": 78
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 61
+            },
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 45
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "my transaction is stuck and I cannot afford the gas",
+          "expected": [
+            "transaction",
+            "gas"
+          ],
+          "top": [
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 87
+            },
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 72
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 22
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "design token utility for a persistent onchain pet",
+          "expected": [
+            "tokenomics",
+            "brainstorm"
+          ],
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 72
+            },
+            {
+              "intentId": 16,
+              "intent": "brainstorm",
+              "score": 44
+            },
+            {
+              "intentId": 9,
+              "intent": "nft",
+              "score": 19
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "is the artwork private if the NFT metadata is on IPFS",
+          "expected": [
+            "nft",
+            "privacy"
+          ],
+          "top": [
+            {
+              "intentId": 9,
+              "intent": "nft",
+              "score": 154
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 28
+            },
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 12
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "why is inference expensive if this is not a real LLM",
+          "expected": [
+            "gas",
+            "comparison"
+          ],
+          "top": [
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 32
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 23
+            },
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 14
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "用另一个 RPC 验证回答以后怎么部署它",
+          "expected": [
+            "onchain_truth",
+            "planning"
+          ],
+          "top": [
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 201
+            },
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 71
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 61
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": false
+        },
+        {
+          "prompt": "助记词泄露后交易被转走了，我很崩溃",
+          "expected": [
+            "wallet",
+            "negative_emotion"
+          ],
+          "top": [
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 84
+            },
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 76
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 54
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "is the contract immutable and who controls upgrades",
+          "expected": [
+            "governance",
+            "contract_explain"
+          ],
+          "top": [
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 47
+            },
+            {
+              "intentId": 6,
+              "intent": "contract_explain",
+              "score": 21
+            },
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 10
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "能不能用代币收费同时把隐私保护好",
+          "expected": [
+            "tokenomics",
+            "privacy"
+          ],
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 135
+            },
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 40
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 40
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        }
+      ]
+    }
+  },
+  "v2": {
+    "single": {
+      "total": 81,
+      "accuracy": 0.9259259259259259,
+      "top2Accuracy": 0.9876543209876543,
+      "misses": [
+        {
+          "prompt": "describe the thing living at this address",
+          "expected": "identity",
+          "actual": "privacy",
+          "top": [
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 58
+            },
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 18
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 18
+            }
+          ]
+        },
+        {
+          "prompt": "怎样确认不是 honeypot",
+          "expected": "security_risk",
+          "actual": "transaction",
+          "top": [
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 77
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 30
+            },
+            {
+              "intentId": 2,
+              "intent": "capabilities",
+              "score": 22
+            }
+          ]
+        },
+        {
+          "prompt": "设计一个由聊天记忆驱动的 NFT 角色",
+          "expected": "brainstorm",
+          "actual": "nft",
+          "top": [
+            {
+              "intentId": 9,
+              "intent": "nft",
+              "score": 73
+            },
+            {
+              "intentId": 16,
+              "intent": "brainstorm",
+              "score": 69
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 58
+            }
+          ]
+        },
+        {
+          "prompt": "给区块确认编个段子",
+          "expected": "humor",
+          "actual": "transaction",
+          "top": [
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 98
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 53
+            },
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 16
+            }
+          ]
+        },
+        {
+          "prompt": "说句不正经的让我开心",
+          "expected": "humor",
+          "actual": "positive_emotion",
+          "top": [
+            {
+              "intentId": 18,
+              "intent": "positive_emotion",
+              "score": 53
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 50
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 42
+            }
+          ]
+        },
+        {
+          "prompt": "我担心操作错了会把资金全丢掉",
+          "expected": "negative_emotion",
+          "actual": "security_risk",
+          "top": [
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 63
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 47
+            },
+            {
+              "intentId": 18,
+              "intent": "positive_emotion",
+              "score": 28
+            }
+          ]
+        }
+      ]
+    },
+    "sentiment": {
+      "total": 18,
+      "accuracy": 0.9444444444444444,
+      "misses": [
+        {
+          "prompt": "show the deployment order",
+          "expected": 1,
+          "actual": 0
+        }
+      ]
+    },
+    "multi": {
+      "total": 12,
+      "pairInTop2": 0.8333333333333334,
+      "pairInTop3": 0.9166666666666666,
+      "results": [
+        {
+          "prompt": "钱包签名有什么风险，同时会花多少 gas",
+          "expected": [
+            "wallet",
+            "gas"
+          ],
+          "top": [
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 152
+            },
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 100
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 47
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "解释代理合约并检查管理员后门",
+          "expected": [
+            "contract_explain",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 123
+            },
+            {
+              "intentId": 6,
+              "intent": "contract_explain",
+              "score": 112
+            },
+            {
+              "intentId": 24,
+              "intent": "governance",
+              "score": 101
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "how private is the prompt and what memory persists",
+          "expected": [
+            "privacy",
+            "memory"
+          ],
+          "top": [
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 34
+            },
+            {
+              "intentId": 22,
+              "intent": "privacy",
+              "score": 33
+            },
+            {
+              "intentId": 10,
+              "intent": "wallet",
+              "score": 14
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "I feel terrible, please help debug my Solidity test",
+          "expected": [
+            "negative_emotion",
+            "code_help"
+          ],
+          "top": [
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 122
+            },
+            {
+              "intentId": 19,
+              "intent": "negative_emotion",
+              "score": 29
+            },
+            {
+              "intentId": 18,
+              "intent": "positive_emotion",
+              "score": 22
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "compare it with ChatGPT and prove validators run it",
+          "expected": [
+            "comparison",
+            "onchain_truth"
+          ],
+          "top": [
+            {
+              "intentId": 3,
+              "intent": "onchain_truth",
+              "score": 34
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 22
+            },
+            {
+              "intentId": 14,
+              "intent": "comparison",
+              "score": 18
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "give the NFT risks and explain whether it can be sold",
+          "expected": [
+            "nft",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 9,
+              "intent": "nft",
+              "score": 101
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 16
+            },
+            {
+              "intentId": 8,
+              "intent": "defi",
+              "score": 12
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "设计聊天代币收费，再想一个长期玩法",
+          "expected": [
+            "tokenomics",
+            "brainstorm"
+          ],
+          "top": [
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 138
+            },
+            {
+              "intentId": 16,
+              "intent": "brainstorm",
+              "score": 87
+            },
+            {
+              "intentId": 21,
+              "intent": "goodbye",
+              "score": 41
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "my transfer failed and the fee was enormous",
+          "expected": [
+            "transaction",
+            "gas"
+          ],
+          "top": [
+            {
+              "intentId": 11,
+              "intent": "transaction",
+              "score": 60
+            },
+            {
+              "intentId": 12,
+              "intent": "gas",
+              "score": 47
+            },
+            {
+              "intentId": 7,
+              "intent": "tokenomics",
+              "score": 26
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "先给上线步骤，再讲代码如何测试",
+          "expected": [
+            "planning",
+            "code_help"
+          ],
+          "top": [
+            {
+              "intentId": 13,
+              "intent": "code_help",
+              "score": 97
+            },
+            {
+              "intentId": 15,
+              "intent": "planning",
+              "score": 88
+            },
+            {
+              "intentId": 25,
+              "intent": "followup",
+              "score": 37
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "流动性为何滑点高，项目方又能否撤池",
+          "expected": [
+            "defi",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 8,
+              "intent": "defi",
+              "score": 200
+            },
+            {
+              "intentId": 18,
+              "intent": "positive_emotion",
+              "score": 37
+            },
+            {
+              "intentId": 23,
+              "intent": "memory",
+              "score": 19
+            }
+          ],
+          "pairInTop2": false,
+          "pairInTop3": false
+        },
+        {
+          "prompt": "tell me who you are and which tasks you support",
+          "expected": [
+            "identity",
+            "capabilities"
+          ],
+          "top": [
+            {
+              "intentId": 2,
+              "intent": "capabilities",
+              "score": 64
+            },
+            {
+              "intentId": 1,
+              "intent": "identity",
+              "score": 2
+            },
+            {
+              "intentId": 17,
+              "intent": "humor",
+              "score": 2
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        },
+        {
+          "prompt": "查实时价格并判断合约是否有跑路风险",
+          "expected": [
+            "market_price",
+            "security_risk"
+          ],
+          "top": [
+            {
+              "intentId": 4,
+              "intent": "market_price",
+              "score": 138
+            },
+            {
+              "intentId": 5,
+              "intent": "security_risk",
+              "score": 83
+            },
+            {
+              "intentId": 8,
+              "intent": "defi",
+              "score": 45
+            }
+          ],
+          "pairInTop2": true,
+          "pairInTop3": true
+        }
+      ]
+    }
+  },
+  "intents": [
+    "greeting",
+    "identity",
+    "capabilities",
+    "onchain_truth",
+    "market_price",
+    "security_risk",
+    "contract_explain",
+    "tokenomics",
+    "defi",
+    "nft",
+    "wallet",
+    "transaction",
+    "gas",
+    "code_help",
+    "comparison",
+    "planning",
+    "brainstorm",
+    "humor",
+    "positive_emotion",
+    "negative_emotion",
+    "thanks",
+    "goodbye",
+    "privacy",
+    "memory",
+    "governance",
+    "followup",
+    "unknown"
+  ]
+}

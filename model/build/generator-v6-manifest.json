@@ -1,0 +1,30 @@
+{
+  "name": "TinyAI v6 Autoregressive Neural Token Generator",
+  "version": 6,
+  "architecture": "context + previous-token + position int8 embeddings -> hard-tanh hidden layer -> trained int8 multiclass output head -> greedy autoregressive decode",
+  "contexts": [
+    "identity",
+    "bsc",
+    "human",
+    "gas",
+    "mint-risk",
+    "proxy-risk"
+  ],
+  "contextVariants": 4,
+  "contextKeys": 24,
+  "vocabularyTokens": 133,
+  "hiddenUnits": 32,
+  "maxGeneratedTokens": 16,
+  "trainingTransitions": 217,
+  "trainingEpochs": 45,
+  "transitionAccuracy": 1.0,
+  "exactAutoregressiveSequences": 24,
+  "totalSequences": 24,
+  "modelBytes": 10074,
+  "modelSha256": "0a7dd9d4cecc5b099fa612c6c8da0420b3ccf6db0494193c74d681e2d173185a",
+  "lexiconBytes": 2137,
+  "lexiconSha256": "b88b337ab3be2e1ee25f4e4e21a5deceeb92cffd72fbe07e64a617add39ffd6d",
+  "corpusSha256": "6d5a2b8d62215ccfe4db5a4886aeff9718f643a72c9d36a413fd13db80493743",
+  "truthBoundary": "Training is off-chain. Context selection comes from TinyAI v5. Every hidden activation, vocabulary score, greedy token choice, UTF-8 token lookup, trace commitment, and final generated response executes on-chain.",
+  "capacityBoundary": "This is a narrow experimental neural decoder trained on 24 authored sequences across six contexts. Exact training reconstruction is not evidence of open-world language understanding. Unsupported or unknown topics must use v5 rather than neural guessing."
+}
