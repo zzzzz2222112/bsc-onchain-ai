@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 function argument(name, fallback = null) {
@@ -11,6 +11,12 @@ function argument(name, fallback = null) {
   if (index === -1) return fallback;
   if (!process.argv[index + 1]) throw new Error(`${name} requires a value`);
   return process.argv[index + 1];
+}
+
+function requiredArgument(name) {
+  const value = argument(name);
+  if (!value) throw new Error(`Missing ${name}`);
+  return value;
 }
 
 function assert(condition, message) {
@@ -22,109 +28,126 @@ function sha256(value) {
 }
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const contractsDir = resolve(root, "contracts");
-const manifestPath = resolve(root, argument("--manifest", "deployments/bsc-mainnet-core-draft.json"));
-const runFilePath = resolve(root, argument("--run-file", "contracts/broadcast/Deploy.s.sol/56/dry-run/run-latest.json"));
+const genesisRunPath = resolve(requiredArgument("--genesis-run"));
+const v2RunPath = resolve(requiredArgument("--v2-run"));
+const artifactRoot = resolve(requiredArgument("--artifact-root"));
+const sourceRoot = resolve(requiredArgument("--source-root"));
+const solc = resolve(requiredArgument("--solc"));
 const outputDir = resolve(root, argument("--output", "contracts/verification"));
-const forge = process.env.FORGE || "forge";
+const runs = {
+  genesis: JSON.parse(await readFile(genesisRunPath, "utf8")),
+  v2: JSON.parse(await readFile(v2RunPath, "utf8")),
+};
 
-const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-const run = JSON.parse(await readFile(runFilePath, "utf8"));
-assert(manifest.chainId === 56, "source-verification preparation is restricted to BSC chain 56");
-assert(Array.isArray(run.transactions) && run.transactions.length === 26, "expected the exact 26-transaction deployment run");
+assert(runs.genesis.chain === 56 && runs.genesis.transactions?.length === 45, "expected the formal 45-transaction BSC genesis broadcast");
+assert(runs.v2.chain === 56 && runs.v2.transactions?.length === 3, "expected the formal 3-transaction BSC Brain V2 broadcast");
 
 const targets = [
-  {
-    slug: "model-card",
-    index: 24,
-    contractId: "src/TinyAIModelCard.sol:TinyAIModelCard",
-    artifact: "out/TinyAIModelCard.sol/TinyAIModelCard.json",
-  },
-  {
-    slug: "chat",
-    index: 25,
-    contractId: "src/TinyAIChat.sol:TinyAIChat",
-    artifact: "out/TinyAIChat.sol/TinyAIChat.json",
-  },
-];
+  ["model-card", "genesis", 24, "src/TinyAIModelCard.sol:TinyAIModelCard"],
+  ["chat-v3", "genesis", 25, "src/TinyAIChat.sol:TinyAIChat"],
+  ["knowledge-v5", "genesis", 26, "src/TinyAIKnowledgeV5.sol:TinyAIKnowledgeV5"],
+  ["retriever-v5", "genesis", 27, "src/TinyAIRetrieverV5.sol:TinyAIRetrieverV5"],
+  ["generator-v6", "genesis", 30, "src/TinyAIGeneratorV6.sol:TinyAIGeneratorV6"],
+  ["genesis-brain-v1", "genesis", 31, "src/protocol/TinyAIV6BrainEngine.sol:TinyAIV6BrainEngine"],
+  ["brain-registry", "genesis", 32, "src/protocol/TinyAIBrainRegistry.sol:TinyAIBrainRegistry"],
+  ["components", "genesis", 34, "src/protocol/TinyAIComponents.sol:TinyAIComponents"],
+  ["protocol", "genesis", 35, "src/protocol/TinyAIProtocol.sol:TinyAIProtocol"],
+  ["market", "genesis", 37, "src/protocol/TinyAIMarket.sol:TinyAIMarket"],
+  ["neural-decoder-v2", "v2", 0, "src/protocol/TinyAINeuralDecoderV2.sol:TinyAINeuralDecoderV2"],
+  ["brain-engine-v2", "v2", 1, "src/protocol/TinyAIBrainEngineV2.sol:TinyAIBrainEngineV2"],
+].map(([slug, runKey, index, publicContractId]) => ({ slug, runKey, index, publicContractId }));
 
 await mkdir(outputDir, { recursive: true });
 const prepared = [];
 for (const target of targets) {
-  const transaction = run.transactions[target.index];
-  const artifact = JSON.parse(await readFile(resolve(contractsDir, target.artifact), "utf8"));
-  const creationBytecode = artifact.bytecode?.object;
-  const input = transaction.transaction?.input;
-  const expectedAddress = manifest.contracts[target.index].address || manifest.contracts[target.index].predictedAddress;
-  assert(/^0x[0-9a-fA-F]+$/.test(creationBytecode), `${target.slug} artifact has no creation bytecode`);
-  assert(/^0x[0-9a-fA-F]+$/.test(input), `${target.slug} deployment input is missing`);
-  assert(input.toLowerCase().startsWith(creationBytecode.toLowerCase()), `${target.slug} creation bytecode differs from the compiled artifact`);
-  assert(transaction.contractAddress.toLowerCase() === expectedAddress.toLowerCase(), `${target.slug} address differs from the manifest`);
+  const transaction = runs[target.runKey].transactions[target.index];
+  const [, publicContractName] = target.publicContractId.split(":");
+  const artifactPath = resolve(artifactRoot, `${publicContractName}.sol`, `${publicContractName}.json`);
+  const artifact = JSON.parse(await readFile(artifactPath, "utf8"));
+  const metadata = typeof artifact.metadata === "string" ? JSON.parse(artifact.metadata) : artifact.metadata;
+  const compilationTargets = Object.entries(metadata.settings?.compilationTarget || {});
+  const exactTarget = compilationTargets.find(([, name]) => name === publicContractName);
+  const creationInput = transaction.transaction?.input;
+  const address = transaction.contractAddress;
 
-  const constructorArgs = `0x${input.slice(creationBytecode.length)}`;
-  const expectedArgsBytes = target.index === 24 ? 25 * 32 : 5 * 32;
-  assert((constructorArgs.length - 2) / 2 === expectedArgsBytes, `${target.slug} constructor argument length is unexpected`);
-  const standardInputRaw = execFileSync(forge, [
-    "verify-contract", "--show-standard-json-input", expectedAddress, target.contractId,
-  ], { cwd: contractsDir, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
-  const parsedStandardInput = JSON.parse(standardInputRaw);
-  assert(parsedStandardInput.settings?.optimizer?.enabled === true, `${target.slug} verification input disabled the optimizer`);
-  assert(parsedStandardInput.settings?.optimizer?.runs === 20_000, `${target.slug} optimizer runs drifted`);
-  assert(parsedStandardInput.settings?.viaIR === true, `${target.slug} verification input disabled via-IR`);
-  assert(parsedStandardInput.settings?.evmVersion === "cancun", `${target.slug} EVM version drifted`);
-  const standardInput = JSON.stringify(parsedStandardInput, null, 2);
+  assert(transaction.transactionType === "CREATE", `${target.slug} is not a CREATE transaction`);
+  assert(/^0x[0-9a-fA-F]{40}$/.test(address), `${target.slug} deployment address is missing`);
+  assert(/^0x[0-9a-fA-F]+$/.test(creationInput), `${target.slug} deployment input is missing`);
+  assert(exactTarget, `${target.slug} artifact metadata has no compilation target`);
+
+  const [exactSourcePath, contractName] = exactTarget;
+  const sources = {};
+  for (const sourcePath of Object.keys(metadata.sources || {})) {
+    const diskPath = isAbsolute(sourcePath) ? sourcePath : resolve(sourceRoot, sourcePath);
+    sources[sourcePath] = { content: await readFile(diskPath, "utf8") };
+  }
+  const settings = {
+    remappings: metadata.settings.remappings || [],
+    optimizer: metadata.settings.optimizer,
+    metadata: metadata.settings.metadata,
+    evmVersion: metadata.settings.evmVersion,
+    libraries: metadata.settings.libraries || {},
+    viaIR: metadata.settings.viaIR,
+    outputSelection: {
+      [exactSourcePath]: {
+        [contractName]: ["abi", "metadata", "evm.bytecode.object", "evm.deployedBytecode.object"],
+      },
+    },
+  };
+  const standardInputObject = { language: "Solidity", sources, settings };
+  const solcRaw = execFileSync(solc, ["--standard-json"], {
+    input: JSON.stringify(standardInputObject),
+    encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
+  });
+  const solcOutput = JSON.parse(solcRaw);
+  const compilerErrors = (solcOutput.errors || []).filter((entry) => entry.severity === "error");
+  assert(compilerErrors.length === 0, `${target.slug} exact standard JSON compilation failed: ${compilerErrors.map((entry) => entry.formattedMessage).join("\n")}`);
+  const compiledObject = solcOutput.contracts?.[exactSourcePath]?.[contractName]?.evm?.bytecode?.object;
+  const creationBytecode = `0x${compiledObject || ""}`;
+  assert(/^0x[0-9a-fA-F]+$/.test(creationBytecode), `${target.slug} exact standard JSON produced no creation bytecode`);
+  assert(creationBytecode.toLowerCase() === artifact.bytecode.object.toLowerCase(), `${target.slug} exact standard JSON differs from the retained compiler artifact`);
+  assert(creationInput.toLowerCase().startsWith(creationBytecode.toLowerCase()), `${target.slug} creation bytecode differs from the deployed transaction`);
+
+  const constructorArgs = `0x${creationInput.slice(creationBytecode.length)}`;
+  const standardInput = JSON.stringify(standardInputObject, null, 2);
   const argsPath = resolve(outputDir, `${target.slug}.constructor-args.txt`);
   const inputPath = resolve(outputDir, `${target.slug}.standard-input.json`);
   await writeFile(argsPath, `${constructorArgs}\n`, { mode: 0o600 });
   await writeFile(inputPath, `${standardInput}\n`, { mode: 0o600 });
   prepared.push({
     ...target,
-    address: expectedAddress,
+    exactContractId: `${exactSourcePath}:${contractName}`,
+    address,
+    transactionHash: transaction.hash,
     constructorArgsPath: argsPath,
     standardInputPath: inputPath,
+    exactCompilerInputReproducesCreationBytecode: true,
+    constructorArgsBytes: (constructorArgs.length - 2) / 2,
     constructorArgsSha256: sha256(constructorArgs),
     standardInputSha256: sha256(standardInput),
-    sourceCount: Object.keys(parsedStandardInput.sources).length,
+    sourceCount: Object.keys(sources).length,
   });
 }
-
-const commandLines = prepared.map((target) => [
-  "forge verify-contract",
-  "  --chain 56",
-  "  --verifier sourcify",
-  "  --watch",
-  `  --constructor-args-path ${JSON.stringify(target.constructorArgsPath)}`,
-  `  ${target.address}`,
-  `  ${target.contractId}`,
-].join(" \\\n"));
-const commands = [
-  "# TinyAI BSC source-verification commands",
-  "",
-  "> Preparation only. Running either command submits source metadata to an external verifier and requires separate user confirmation after the contracts exist on BSC.",
-  "> The twenty-two model blobs and two lexicons are raw STOP-prefixed runtime data; verify their exact code hashes with the post-deployment auditor instead of pretending they are ordinary Solidity runtimes.",
-  "",
-  "```bash",
-  "cd contracts",
-  ...commandLines.flatMap((line, index) => index === 0 ? [line] : ["", line]),
-  "```",
-  "",
-].join("\n");
-await writeFile(resolve(outputDir, "COMMANDS.md"), commands, { mode: 0o600 });
 
 const report = {
   ok: true,
   status: "SOURCE_VERIFICATION_PREPARED_NOT_SUBMITTED",
   chainId: 56,
-  deploymentStatus: manifest.status,
-  manifestPath: relative(root, manifestPath),
-  runFilePath: relative(root, runFilePath),
+  compiler: "0.8.30+commit.73712a01",
+  genesisRunFile: relative(root, genesisRunPath),
+  v2RunFile: relative(root, v2RunPath),
   outputDir: relative(root, outputDir),
-  targets: prepared.map(({ slug, contractId, address, constructorArgsPath, standardInputPath, constructorArgsSha256, standardInputSha256, sourceCount }) => ({
+  targets: prepared.map(({ slug, publicContractId, exactContractId, address, transactionHash, constructorArgsPath, standardInputPath, exactCompilerInputReproducesCreationBytecode, constructorArgsBytes, constructorArgsSha256, standardInputSha256, sourceCount }) => ({
     slug,
-    contractId,
+    publicContractId,
+    exactContractId,
     address,
+    transactionHash,
     constructorArgsPath: relative(root, constructorArgsPath),
     standardInputPath: relative(root, standardInputPath),
+    exactCompilerInputReproducesCreationBytecode,
+    constructorArgsBytes,
     constructorArgsSha256,
     standardInputSha256,
     sourceCount,

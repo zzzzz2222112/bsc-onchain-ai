@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "status": "VERIFIED",
+  "chainId": 56,
+  "network": "BNB Smart Chain Mainnet",
+  "verifier": "BscScan via Etherscan API V2",
+  "verifiedAt": "2026-08-21",
+  "compiler": "v0.8.30+commit.73712a01",
+  "optimizer": {
+    "enabled": true,
+    "runs": 20000
+  },
+  "viaIR": true,
+  "evmVersion": "cancun",
+  "contracts": [
+    {
+      "name": "TinyAIProtocol",
+      "address": "0x5044F577571dcA7cB7A0775aDcFa66E02bd49c93",
+      "source": "contracts/src/protocol/TinyAIProtocol.sol",
+      "url": "https://bscscan.com/address/0x5044F577571dcA7cB7A0775aDcFa66E02bd49c93#code"
+    },
+    {
+      "name": "TinyAIComponents",
+      "address": "0x936161FD89c4272f2B034f5414e6D9C7C9CB9bF1",
+      "source": "contracts/src/protocol/TinyAIComponents.sol",
+      "url": "https://bscscan.com/address/0x936161FD89c4272f2B034f5414e6D9C7C9CB9bF1#code"
+    },
+    {
+      "name": "TinyAIMarket",
+      "address": "0x3dCBDB84bA220Cd9cA6E420b2bCe3D3610a1e9b7",
+      "source": "contracts/src/protocol/TinyAIMarket.sol",
+      "url": "https://bscscan.com/address/0x3dCBDB84bA220Cd9cA6E420b2bCe3D3610a1e9b7#code"
+    },
+    {
+      "name": "TinyAIBrainRegistry",
+      "address": "0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1",
+      "source": "contracts/src/protocol/TinyAIBrainRegistry.sol",
+      "url": "https://bscscan.com/address/0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1#code"
+    },
+    {
+      "name": "TinyAINeuralDecoderV2",
+      "address": "0xe4D2944f722F2c8d685F3934FB2310321281C7eF",
+      "source": "contracts/src/protocol/TinyAINeuralDecoderV2.sol",
+      "url": "https://bscscan.com/address/0xe4D2944f722F2c8d685F3934FB2310321281C7eF#code"
+    },
+    {
+      "name": "TinyAIBrainEngineV2",
+      "address": "0xE45F1221EBaDb925062E1a706b16277943e7DAb0",
+      "source": "contracts/src/protocol/TinyAIBrainEngineV2.sol",
+      "url": "https://bscscan.com/address/0xE45F1221EBaDb925062E1a706b16277943e7DAb0#code"
+    },
+    {
+      "name": "TinyAIModelCard",
+      "address": "0x6D3E009a7573535Ede56fDC5Df54934A7915f2f7",
+      "source": "contracts/src/TinyAIModelCard.sol",
+      "url": "https://bscscan.com/address/0x6D3E009a7573535Ede56fDC5Df54934A7915f2f7#code"
+    },
+    {
+      "name": "TinyAIChat",
+      "address": "0x0f8e9908Fba55cc2ea7c4faB036b0BDf4d7bc95E",
+      "source": "contracts/src/TinyAIChat.sol",
+      "url": "https://bscscan.com/address/0x0f8e9908Fba55cc2ea7c4faB036b0BDf4d7bc95E#code"
+    },
+    {
+      "name": "TinyAIKnowledgeV5",
+      "address": "0x0005aDE58aDfDd53767A286eE9BF1bDF7011c19e",
+      "source": "contracts/src/TinyAIKnowledgeV5.sol",
+      "url": "https://bscscan.com/address/0x0005aDE58aDfDd53767A286eE9BF1bDF7011c19e#code"
+    },
+    {
+      "name": "TinyAIRetrieverV5",
+      "address": "0x1fEC390578823717764285f10157370Aed7596b1",
+      "source": "contracts/src/TinyAIRetrieverV5.sol",
+      "url": "https://bscscan.com/address/0x1fEC390578823717764285f10157370Aed7596b1#code"
+    },
+    {
+      "name": "TinyAIGeneratorV6",
+      "address": "0x4D2eB487Ee7d4da0f1291E02670f8045Fe1040C2",
+      "source": "contracts/src/TinyAIGeneratorV6.sol",
+      "url": "https://bscscan.com/address/0x4D2eB487Ee7d4da0f1291E02670f8045Fe1040C2#code"
+    },
+    {
+      "name": "TinyAIV6BrainEngine",
+      "address": "0x70A44eC56254ef2E7A1B26Dc279AC41598182801",
+      "source": "contracts/src/protocol/TinyAIV6BrainEngine.sol",
+      "url": "https://bscscan.com/address/0x70A44eC56254ef2E7A1B26Dc279AC41598182801#code"
+    }
+  ],
+  "dataContractBoundary": "STOP-prefixed model and lexicon blobs are validated by runtime bytecode hash and frozen artifact commitments; they are not represented as ordinary Solidity contracts."
+}
