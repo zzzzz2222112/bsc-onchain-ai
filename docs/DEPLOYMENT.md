@@ -144,6 +144,10 @@ Source verification must use the exact standard JSON compiler input and construc
 
 Raw STOP-prefixed model blobs are data-bearing runtime code. They should be verified through payload commitments and runtime code hashes rather than represented as ordinary Solidity contracts.
 
+The BSC mainnet release has twelve executable Solidity contracts verified on BscScan. Their addresses, compiler profile, source paths and explorer links are recorded in [`contracts/deployments/bsc-mainnet-source-verification.json`](../contracts/deployments/bsc-mainnet-source-verification.json).
+
+The verification preparation script does not trust a fresh compile by itself. It reconstructs Standard JSON from the retained compiler metadata, recompiles with `solc 0.8.30` and checks that the exact creation bytecode prefixes the corresponding deployed transaction input before any explorer submission is prepared. This also catches metadata drift caused by source-unit paths or remapping changes.
+
 ## 11. Client configuration
 
 Public client configuration may include chain ID, explorer URL, contract addresses, deployment start block and repository URL.
@@ -157,3 +161,9 @@ The official interface is replaceable and cannot substitute for contract verific
 The repository stores public release evidence under `contracts/deployments/`.
 
 A canonical record should contain chain ID, addresses, transaction hashes, block numbers, runtime code hashes, gas used and post-deployment integrity checks. It must contain no secret material.
+
+Current records:
+
+- [`bsc-mainnet-genesis.json`](../contracts/deployments/bsc-mainnet-genesis.json): formal nonce 60–104 deployment, 45 successful receipts and 36 runtime hashes;
+- [`bsc-mainnet-brain-v2.json`](../contracts/deployments/bsc-mainnet-brain-v2.json): Brain V2 deployment and registry publication; and
+- [`bsc-mainnet-source-verification.json`](../contracts/deployments/bsc-mainnet-source-verification.json): BscScan verification snapshot for executable Solidity contracts.

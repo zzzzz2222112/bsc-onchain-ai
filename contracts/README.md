@@ -1,10 +1,10 @@
 # Contracts
 
-The Foundry package deploys 26 contracts for the fee-free core: twenty-two immutable sparse-model chunks, two answer lexicons, one model card, and one chat engine. The bundled-token mode adds one fixed-supply token.
+The Foundry package contains both the original fee-free chat core and the current lifecycle protocol. The formal BSC protocol release uses 36 contract creations plus nine initialization calls: immutable model and lexicon storage, retrieval and generation modules, a versioned brain registry, ERC-721 AI state, capped ERC-1155 components and a native settlement market.
 
 ```bash
-forge install foundry-rs/forge-std@v1.16.2 --no-commit
-forge install OpenZeppelin/openzeppelin-contracts@v5.7.0 --no-commit
+forge install foundry-rs/forge-std@v1.16.2 --no-git
+forge install OpenZeppelin/openzeppelin-contracts@v5.7.0 --no-git
 forge fmt --check
 forge test
 forge build --sizes

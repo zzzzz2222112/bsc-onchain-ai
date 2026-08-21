@@ -36,7 +36,6 @@
   background: rgba(245, 241, 231, .95);
 }
 .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; letter-spacing: -.02em; }
-.brand span,
 .footer div span {
   width: 30px;
   height: 30px;
@@ -46,6 +45,7 @@
   color: var(--ink);
   font: 900 16px/1 Arial, sans-serif;
 }
+.brandMark { display: block; flex: 0 0 auto; width: 30px; height: 30px; }
 .brand strong { font-size: 16px; }
 .navLinks { display: flex; align-items: center; gap: clamp(14px, 2.2vw, 30px); }
 .navLinks a { color: #3f3b35; text-decoration: none; font: 700 12px/1.2 "Cascadia Mono", Consolas, monospace; }
@@ -278,8 +278,7 @@
 .protocolNote { margin: 18px 0 0; padding: 20px 22px; border-left: 2px solid var(--yellow); background: var(--surface); color: #5c574f; font-size: 13px; line-height: 1.75; }
 .protocolNote b { color: var(--text); }
 
-.componentTable,
-.controlMatrix { margin-top: 42px; border-top: 1px solid var(--line-strong); }
+.componentTable { margin-top: 42px; overflow-x: auto; border-top: 1px solid var(--line-strong); }
 .tableHead,
 .tableRow { display: grid; grid-template-columns: 70px 1.2fr 1fr .7fr; align-items: center; gap: 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); }
 .tableHead { min-height: 45px; background: var(--yellow); color: var(--ink); font: 700 9px "Cascadia Mono", Consolas, monospace; letter-spacing: .08em; }
@@ -307,13 +306,25 @@
 .marketFacts b { font-size: 13px; }
 .marketFacts span { margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.55; }
 
-.controlHead,
-.controlRow { display: grid; grid-template-columns: .7fr 1.25fr 1.05fr; gap: 24px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); }
-.controlHead { min-height: 45px; padding: 0 22px; align-items: center; background: var(--yellow); color: var(--ink); font: 700 9px "Cascadia Mono", Consolas, monospace; letter-spacing: .08em; }
-.controlRow { min-height: 100px; padding: 22px; align-items: start; }
-.controlRow b { color: var(--yellow-ink); font-size: 13px; }
-.controlRow p { margin: 0; color: #514c45; font-size: 12px; line-height: 1.65; }
-.controlRow p:last-child { color: var(--muted); }
+.contractTable { margin-top: 44px; border-top: 1px solid var(--line-strong); border-left: 1px solid var(--line); }
+.contractHead,
+.contractRow { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(260px, 1.25fr) minmax(170px, .8fr); border-bottom: 1px solid var(--line); }
+.contractHead { min-height: 44px; align-items: center; background: var(--yellow); color: var(--ink); font: 700 9px "Cascadia Mono", Consolas, monospace; letter-spacing: .08em; }
+.contractHead span,
+.contractRow > * { min-width: 0; padding: 18px 20px; border-right: 1px solid var(--line); }
+.contractRow { min-height: 104px; background: var(--surface); }
+.contractRow > div:first-child { display: grid; align-content: center; gap: 9px; }
+.contractRow b { font-size: 14px; overflow-wrap: anywhere; }
+.contractRow span { color: var(--muted); font-size: 11px; line-height: 1.55; }
+.contractRow code { display: flex; align-items: center; color: #4f4a43; font: 10px/1.7 "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; word-break: break-all; }
+.contractLinks { display: grid; align-content: center; gap: 10px; }
+.contractLinks a { color: var(--yellow-ink); text-decoration: none; font: 700 10px/1.45 "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
+.contractLinks a:hover { text-decoration: underline; }
+.evidenceLinks { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.evidenceLinks a { min-height: 88px; padding: 19px; display: grid; align-content: center; gap: 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(255, 253, 248, .72); text-decoration: none; }
+.evidenceLinks span { color: var(--yellow-ink); font: 700 9px/1.3 "Cascadia Mono", Consolas, monospace; letter-spacing: .08em; }
+.evidenceLinks b { font-size: 12px; }
+
 
 .verifyBlock { margin-top: 44px; border: 1px solid var(--line-strong); background: #fff6cf; }
 .codeHeader { min-height: 43px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
@@ -357,6 +368,10 @@
   .architecture figcaption { grid-column: 1; }
   .stateLedger { grid-template-columns: 1fr; }
   .stateLedger > div:nth-child(odd), .stateLedger > div:nth-child(even) { padding-right: 0; padding-left: 0; border-right: 0; }
+  .contractHead { display: none; }
+  .contractRow { grid-template-columns: 1fr; }
+  .contractRow > * { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .contractRow > *:last-child { border-bottom: 0; }
   .releaseSection { padding: 44px; gap: 44px; }
 }
 
@@ -366,6 +381,7 @@
   .hero { min-height: auto; padding: 70px 0; grid-template-columns: 1fr; }
   .hero::before { display: none; }
   .executionSeal { max-width: 520px; }
+  .evidenceLinks { grid-template-columns: 1fr; }
   .sealCore { min-height: 360px; }
   .statusBar { grid-template-columns: repeat(2, 1fr); }
   .statusBar div:nth-child(even) { border-right: 0; }
@@ -407,9 +423,7 @@
   .executionFlow > div { grid-template-columns: 62px 1fr; }
   .stateLedger > div { grid-template-columns: 105px 1fr; }
   .memoryPanel { padding: 24px; }
-  .componentTable, .controlMatrix { overflow-x: auto; }
   .tableHead, .tableRow { min-width: 620px; }
-  .controlHead, .controlRow { min-width: 720px; }
   .fundFlow { grid-template-columns: 1fr; }
   .fundFlow > i { transform: rotate(90deg); }
   .fundFlow .owedSeller { grid-column: 1; grid-row: auto; min-height: 58px; margin: 0; }

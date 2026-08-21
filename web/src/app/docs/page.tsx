@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BrandMark } from "@/components/brand-mark";
 import { GitHubLink } from "@/components/github-link";
+import { XLink } from "@/components/x-link";
 import styles from "./docs.module.css";
 
 export const metadata: Metadata = {
   title: "TinyAI Protocol Docs | 链上 AI 生命周期协议",
-  description: "TinyAI Protocol 技术规范：链上推理、AI 状态、大脑注册表、组件、市场、权限与独立验证。",
+  description: "TinyAI Protocol 技术规范：链上推理、AI 状态、大脑注册表、组件、市场与独立验证。",
 };
 
 const toc = [
   ["thesis", "协议命题"], ["architecture", "系统架构"], ["execution", "执行模型"],
   ["identity", "AI 身份与状态"], ["brains", "大脑与进化"], ["components", "组件协议"],
-  ["market", "市场与资金流"], ["control", "权限边界"], ["verify", "独立验证"], ["composability", "协议可组合性"],
+  ["market", "市场与资金流"], ["contracts", "合约与源码"], ["verify", "独立验证"], ["composability", "协议可组合性"],
   ["horizon", "未来技术愿景"],
 ];
 
@@ -30,21 +32,22 @@ const components = [
   ["05", "Caution Gene", "谨慎 +5", "发行 15,000"], ["06", "Expression Core", "回答变体 +1", "发行 10,000"],
 ];
 
-const controls = [
-  ["AI 所有者", "发起对话和状态写入、升级大脑、开启自动升级、融合组件、永久封印", "不能修改已发布引擎，不能撤销封印"],
-  ["注册表所有者", "发布新大脑、管理升级资格、设置推荐版本", "不能覆盖历史版本，不能强制迁移全部 AI"],
-  ["协议所有者", "设置国库、把协议 Mint 收入提取到国库", "不能修改 10,000 总量或 0.0001 BNB 固定价格"],
-  ["组件所有者", "部署时定义并封存目录、设置国库与元数据 URI", "不能免费铸造、改价、增发或在封存后新增组件"],
-  ["市场合约", "按卖家标价完成非托管结算", "没有管理员，不能转走未授权资产"],
+const deployedContracts = [
+  ["TinyAIProtocol", "AI 身份、状态与主人专属写入", "0x5044F577571dcA7cB7A0775aDcFa66E02bd49c93", "TinyAIProtocol.sol", "protocol/TinyAIProtocol.sol"],
+  ["TinyAIComponents", "有上限的 ERC-1155 能力组件", "0x936161FD89c4272f2B034f5414e6D9C7C9CB9bF1", "TinyAIComponents.sol", "protocol/TinyAIComponents.sol"],
+  ["TinyAIMarket", "AI 与组件的非托管固定价结算", "0x3dCBDB84bA220Cd9cA6E420b2bCe3D3610a1e9b7", "TinyAIMarket.sol", "protocol/TinyAIMarket.sol"],
+  ["TinyAIBrainRegistry", "追加式大脑版本与代码哈希注册表", "0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1", "TinyAIBrainRegistry.sol", "protocol/TinyAIBrainRegistry.sol"],
+  ["TinyAIBrainEngineV2", "当前推荐的确定性链上推理引擎", "0xE45F1221EBaDb925062E1a706b16277943e7DAb0", "TinyAIBrainEngineV2.sol", "protocol/TinyAIBrainEngineV2.sol"],
+  ["TinyAINeuralDecoderV2", "V2 的 int8 自回归神经解码器", "0xe4D2944f722F2c8d685F3934FB2310321281C7eF", "TinyAINeuralDecoderV2.sol", "protocol/TinyAINeuralDecoderV2.sol"],
 ];
 
 export default function DocsPage() {
   return (
     <main className={styles.page}>
       <nav className={styles.nav} aria-label="主导航">
-        <Link className={styles.brand} href="/protocol"><span aria-hidden="true">T</span><strong>TinyAI Protocol</strong></Link>
+        <Link className={styles.brand} href="/protocol"><BrandMark className={styles.brandMark} /><strong>TinyAI Protocol</strong></Link>
         <div className={styles.navLinks}>
-          <Link href="/protocol">Mint</Link><Link href="/my-ai">我的 AI</Link><Link href="/market">Market</Link><GitHubLink />
+          <Link href="/protocol">Mint</Link><Link href="/my-ai">我的 AI</Link><Link href="/market">Market</Link><GitHubLink /><XLink />
           <a className={styles.paperNav} href="/whitepaper/TinyAI-Protocol-Whitepaper.pdf" download>Whitepaper</a>
         </div>
       </nav>
@@ -180,13 +183,28 @@ export default function DocsPage() {
             <p className={styles.protocolNote}>AI 与组件的初始 Mint 收入只可提取到配置的 treasury。对话不收协议费用；保存对话的人自己向 BSC 支付 Gas。</p>
           </section>
 
-          <section className={styles.section} id="control">
-            <p className={styles.kicker}>权限边界</p><h2>谁能改什么，谁永远改不了什么。</h2>
-            <div className={styles.controlMatrix} role="table" aria-label="权限边界">
-              <div className={styles.controlHead} role="row"><span>ACTOR</span><span>CAN</span><span>CANNOT</span></div>
-              {controls.map(([actor, can, cannot]) => <div className={styles.controlRow} role="row" key={actor}><b>{actor}</b><p>{can}</p><p>{cannot}</p></div>)}
+          <section className={styles.section} id="contracts">
+            <p className={styles.kicker}>CONTRACTS &amp; SOURCE</p><h2>主网地址、公开源码与验证结果，属于同一条证据链。</h2>
+            <p>下面列出当前协议最重要的六个可执行合约。每个地址都链接到 BscScan 的已验证源码，同时链接到独立公开仓库中的对应文件。</p>
+            <div className={styles.contractTable} role="table" aria-label="TinyAI BSC 主网合约">
+              <div className={styles.contractHead} role="row"><span>CONTRACT / ROLE</span><span>MAINNET ADDRESS</span><span>EVIDENCE</span></div>
+              {deployedContracts.map(([name, role, address, sourceLabel, sourcePath]) => (
+                <div className={styles.contractRow} role="row" key={address}>
+                  <div><b>{name}</b><span>{role}</span></div>
+                  <code>{address}</code>
+                  <div className={styles.contractLinks}>
+                    <a href={`https://bscscan.com/address/${address}#code`} target="_blank" rel="noreferrer">BscScan Verified ↗</a>
+                    <a href={`https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/src/${sourcePath}`} target="_blank" rel="noreferrer">{sourceLabel} ↗</a>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className={styles.protocolNote}>所有管理角色采用两步所有权转移。协议为直接部署，不通过代理槽替换运行代码。</p>
+            <div className={styles.evidenceLinks}>
+              <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-genesis.json" target="_blank" rel="noreferrer"><span>GENESIS</span><b>45 笔正式部署记录 ↗</b></a>
+              <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-brain-v2.json" target="_blank" rel="noreferrer"><span>BRAIN V2</span><b>升级与注册记录 ↗</b></a>
+              <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-source-verification.json" target="_blank" rel="noreferrer"><span>VERIFICATION</span><b>源码验证清单 ↗</b></a>
+            </div>
+            <p className={styles.protocolNote}>模型和词库使用 STOP 前缀的运行时字节码保存。它们不是普通 Solidity 合约，因此用冻结产物承诺和 runtime code hash 验证，不伪装成“已验证 Solidity”。</p>
           </section>
 
           <section className={styles.section} id="verify">

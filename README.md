@@ -192,10 +192,27 @@ web/                      replaceable reference client
 
 The reference client is intentionally not part of the trust boundary. Any compatible application or contract can integrate the same public interfaces.
 
+## BNB Smart Chain deployment
+
+The canonical protocol stack is deployed on BNB Smart Chain mainnet. The principal executable contracts have been source-verified on BscScan with Solidity `0.8.30`, 20,000 optimizer runs, `viaIR` enabled and the Cancun EVM target.
+
+| Contract | Mainnet address | Public source |
+| --- | --- | --- |
+| AI identity and state | [`0x5044...9c93`](https://bscscan.com/address/0x5044F577571dcA7cB7A0775aDcFa66E02bd49c93#code) | [`TinyAIProtocol.sol`](contracts/src/protocol/TinyAIProtocol.sol) |
+| Components | [`0x9361...9bF1`](https://bscscan.com/address/0x936161FD89c4272f2B034f5414e6D9C7C9CB9bF1#code) | [`TinyAIComponents.sol`](contracts/src/protocol/TinyAIComponents.sol) |
+| Native market | [`0x3dCB...e9b7`](https://bscscan.com/address/0x3dCBDB84bA220Cd9cA6E420b2bCe3D3610a1e9b7#code) | [`TinyAIMarket.sol`](contracts/src/protocol/TinyAIMarket.sol) |
+| Brain registry | [`0x29Ee...1fA1`](https://bscscan.com/address/0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1#code) | [`TinyAIBrainRegistry.sol`](contracts/src/protocol/TinyAIBrainRegistry.sol) |
+| Brain Engine V2 | [`0xE45F...DAb0`](https://bscscan.com/address/0xE45F1221EBaDb925062E1a706b16277943e7DAb0#code) | [`TinyAIBrainEngineV2.sol`](contracts/src/protocol/TinyAIBrainEngineV2.sol) |
+| Neural Decoder V2 | [`0xe4D2...C7eF`](https://bscscan.com/address/0xe4D2944f722F2c8d685F3934FB2310321281C7eF#code) | [`TinyAINeuralDecoderV2.sol`](contracts/src/protocol/TinyAINeuralDecoderV2.sol) |
+
+The [formal 45-transaction genesis record](contracts/deployments/bsc-mainnet-genesis.json), [Brain V2 release record](contracts/deployments/bsc-mainnet-brain-v2.json) and [source-verification registry](contracts/deployments/bsc-mainnet-source-verification.json) preserve transaction hashes, blocks, compiler settings and runtime code hashes. Raw model and lexicon data contracts are checked by runtime hash and artifact commitment rather than presented as Solidity source.
+
 ## Verification
 
 ```bash
 cd contracts
+forge install foundry-rs/forge-std@v1.16.2 --no-git
+forge install OpenZeppelin/openzeppelin-contracts@v5.7.0 --no-git
 forge test
 forge fmt --check
 ```
@@ -208,6 +225,8 @@ pnpm build
 ```
 
 Canonical public deployment evidence is stored under `contracts/deployments/`. Deployment artifacts are evidence, while the contracts and their live state remain the source of truth.
+
+`scripts/prepare-source-verification.mjs` reconstructs exact Standard JSON compiler inputs from retained Foundry artifacts, recompiles them with the pinned `solc` binary and refuses to continue unless the resulting creation bytecode is a byte-for-byte prefix of the deployed transaction input. Explorer API keys, RPC credentials, signers and broadcast files remain outside this repository.
 
 ## Technical documents
 
@@ -230,3 +249,7 @@ Contributions support security review, reproducible model research, public infra
 ## License
 
 MIT. Contract source, model tooling and generated artifacts in this repository are released under the same license.
+
+## Maintainer
+
+[`zzzzz2222112`](https://github.com/zzzzz2222112)
