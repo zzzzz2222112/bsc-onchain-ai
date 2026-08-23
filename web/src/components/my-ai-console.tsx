@@ -7,22 +7,20 @@ import {
   createWalletClient,
   custom,
   defineChain,
+  formatUnits,
   http,
   parseAbiItem,
   type Address,
-  type EIP1193Provider,
   type Hash,
 } from "viem";
-import { protocolAbi, type DeploymentConfig } from "@/lib/contracts";
+import { holderVaultAbi, protocolAbi, type DeploymentConfig } from "@/lib/contracts";
 import { canAutoAddNetwork, switchOrAddNetwork } from "@/lib/wallet-network";
+import { BrandMark } from "./brand-mark";
 import { GitHubLink } from "./github-link";
+import { XLink } from "./x-link";
+import { WalletSelectorModal, type WalletOption, useWalletSelector } from "./wallet-selector";
 import styles from "./protocol-console.module.css";
-
-type InjectedProvider = EIP1193Provider & {
-  on?: (event: string, listener: (...args: unknown[]) => void) => void;
-  removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
-};
-type Stage = "idle" | "connecting" | "loading" | "error";
+type Stage = "idle" | "connecting" | "loading" | "signing" | "confirming" | "success" | "error";
 type AIState = {
   dna: Hash;
   memoryRoot: Hash;
@@ -45,10 +43,6 @@ type AIRecord = { id: bigint; name: string; state: AIState };
 
 const transferEvent = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)");
 
-function provider() {
-  return (window as Window & { ethereum?: InjectedProvider }).ethereum;
-}
-
 function short(value?: string | null, left = 6, right = 4) {
   if (!value) return "-";
   return value.length <= left + right + 1 ? value : `${value.slice(0, left)}…${value.slice(-right)}`;
@@ -59,12 +53,16 @@ function explainError(error: unknown) {
   if (value?.code === 4001) return "你在钱包里取消了这次操作。";
   const message = value?.shortMessage || value?.message || "操作没有完成";
   if (/wrong chain|chain.*mismatch|network/i.test(message)) return "钱包网络不匹配，请切换到 BNB Smart Chain。";
+  if (/NothingToClaim/i.test(message)) return "当前没有可领取的交易税奖励。";
   if (/user rejected|denied/i.test(message)) return "你在钱包里取消了这次操作。";
   return message.split("\n")[0].slice(0, 220);
 }
 
 export function MyAIConsole({ config }: { config: DeploymentConfig }) {
   const protocolAddress = config.protocolAddress || null;
+  const holderVaultAddress = config.holderVaultAddress || null;
+  const rewardSymbol = config.rewardAssetSymbol || config.nativeSymbol;
+  const rewardDecimals = config.rewardAssetDecimals ?? 18;
   const deployed = Boolean(protocolAddress);
   const chain = useMemo(() => defineChain({
     id: config.chainId,
@@ -78,11 +76,27 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
     transport: http("/api/rpc", { batch: { batchSize: 10, wait: 5 } }),
   }), [chain]);
 
+  const {
+    ready: walletDiscoveryReady,
+    selectedId: selectedWalletId,
+    selectedWallet,
+    selectWallet,
+    wallets,
+  } = useWalletSelector();
+  const walletProvider = selectedWallet?.provider || null;
+
   const [account, setAccount] = useState<Address | null>(null);
   const [walletChain, setWalletChain] = useState<number | null>(null);
   const [stage, setStage] = useState<Stage>("idle");
   const [error, setError] = useState("");
   const [records, setRecords] = useState<AIRecord[]>([]);
+  const [claimableRewards, setClaimableRewards] = useState(0n);
+  const [lastTx, setLastTx] = useState<Hash | null>(null);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [connectingWalletId, setConnectingWalletId] = useState<string | null>(null);
+
+  const openWalletModal = useCallback(() => { setError(""); setWalletModalOpen(true); }, []);
+  const closeWalletModal = useCallback(() => setWalletModalOpen(false), []);
 
   const wrongChain = account !== null && walletChain !== null && walletChain !== config.chainId;
   const switchLabel = canAutoAddNetwork(config.walletRpcUrl)
@@ -127,12 +141,12 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
   }, [config.protocolFromBlock, protocolAddress, publicClient]);
 
   const loadOwned = useCallback(async (owner: Address | null) => {
-    if (!owner || !protocolAddress) { setRecords([]); setStage("idle"); return; }
+    if (!owner || !protocolAddress) { setRecords([]); setClaimableRewards(0n); setStage("idle"); return; }
     setStage("loading");
     setError("");
     try {
       const balance = await publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "balanceOf", args: [owner] });
-      if (balance === 0n) { setRecords([]); setStage("idle"); return; }
+      if (balance === 0n) { setRecords([]); setClaimableRewards(0n); setStage("idle"); return; }
 
       let ids: bigint[];
       try {
@@ -141,25 +155,36 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
         ids = await legacyOwnedIds(owner);
       }
 
-      const values = await Promise.all(ids.map(async (id) => {
-        const [name, state] = await Promise.all([
-          publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "aiName", args: [id] }),
-          publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "aiState", args: [id] }),
-        ]);
-        return { id, name, state: state as AIState };
-      }));
+      const [values, rewards] = await Promise.all([
+        Promise.all(ids.map(async (id) => {
+          const [name, state] = await Promise.all([
+            publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "aiName", args: [id] }),
+            publicClient.readContract({ address: protocolAddress, abi: protocolAbi, functionName: "aiState", args: [id] }),
+          ]);
+          return { id, name, state: state as AIState };
+        })),
+        holderVaultAddress
+          ? publicClient.readContract({ address: holderVaultAddress, abi: holderVaultAbi, functionName: "claimableMany", args: [ids] })
+          : Promise.resolve(0n),
+      ]);
       setRecords(values.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+      setClaimableRewards(rewards);
       setStage("idle");
     } catch (cause) {
       setRecords([]);
+      setClaimableRewards(0n);
       setStage("error");
       setError(`读取你的 AI 失败：${explainError(cause)}`);
     }
-  }, [legacyOwnedIds, protocolAddress, publicClient]);
+  }, [holderVaultAddress, legacyOwnedIds, protocolAddress, publicClient]);
 
   useEffect(() => {
-    const injected = provider();
-    if (!injected) return;
+    const injected = walletProvider;
+    if (!walletDiscoveryReady) return;
+    if (!injected) {
+      const task = window.setTimeout(() => { setAccount(null); setWalletChain(null); }, 0);
+      return () => window.clearTimeout(task);
+    }
     let cancelled = false;
     const accountsChanged = (...args: unknown[]) => setAccount(((args[0] as string[])?.[0] as Address) || null);
     const chainChanged = (...args: unknown[]) => setWalletChain(Number(BigInt(args[0] as string)));
@@ -181,17 +206,18 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
       injected.removeListener?.("chainChanged", chainChanged);
       injected.removeListener?.("disconnect", disconnected);
     };
-  }, []);
+  }, [walletDiscoveryReady, walletProvider]);
 
   useEffect(() => {
     const task = window.setTimeout(() => { void loadOwned(account); }, 0);
     return () => window.clearTimeout(task);
   }, [account, loadOwned]);
 
-  async function connectWallet() {
-    const injected = provider();
+  async function connectWallet(walletOption: WalletOption) {
+    const injected = walletOption.provider;
+    selectWallet(walletOption);
     setError("");
-    if (!injected) { setStage("error"); setError("没有检测到浏览器钱包。安装或打开钱包扩展后再连接。"); return; }
+    setConnectingWalletId(walletOption.id);
     setStage("connecting");
     try {
       const wallet = createWalletClient({ chain, transport: custom(injected) });
@@ -199,11 +225,17 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
       setAccount(selected);
       setWalletChain(await wallet.getChainId());
       setStage("idle");
-    } catch (cause) { setStage("error"); setError(explainError(cause)); }
+      setWalletModalOpen(false);
+    } catch (cause) {
+      setStage("error");
+      setError(explainError(cause));
+    } finally {
+      setConnectingWalletId(null);
+    }
   }
 
   async function switchNetwork() {
-    const injected = provider();
+    const injected = walletProvider;
     if (!injected) return;
     setError("");
     setStage("connecting");
@@ -213,13 +245,64 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
     } catch (cause) { setStage("error"); setError(`切换网络失败：${explainError(cause)}`); }
   }
 
+  async function claimRewards() {
+    if (!account || !walletProvider || !protocolAddress || !holderVaultAddress || records.length === 0) return;
+    if (wrongChain) { setStage("error"); setError(`请先切换到 ${config.chainName}。`); return; }
+    setError("");
+    setLastTx(null);
+    setStage("signing");
+    try {
+      const [boundProtocol, configuredVault] = await Promise.all([
+        publicClient.readContract({
+          address: holderVaultAddress,
+          abi: holderVaultAbi,
+          functionName: "protocol",
+        }),
+        publicClient.readContract({
+          address: protocolAddress,
+          abi: protocolAbi,
+          functionName: "holderVault",
+        }),
+      ]);
+      if (boundProtocol.toLowerCase() !== protocolAddress.toLowerCase()) {
+        throw new Error("页面配置的奖励 Vault 与 TinyAI Protocol 不一致。");
+      }
+      if (configuredVault.toLowerCase() !== holderVaultAddress.toLowerCase()) {
+        throw new Error("TinyAI Protocol 绑定的奖励 Vault 与页面配置不一致。");
+      }
+      const wallet = createWalletClient({ account, chain, transport: custom(walletProvider) });
+      const ids = records.map((record) => record.id);
+      const simulation = await publicClient.simulateContract({
+        account,
+        address: holderVaultAddress,
+        abi: holderVaultAbi,
+        functionName: "claim",
+        args: [ids, account],
+      });
+      const hash = await wallet.writeContract(simulation.request);
+      setLastTx(hash);
+      setStage("confirming");
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+        confirmations: 1,
+        onReplaced: ({ transaction }) => setLastTx(transaction.hash),
+      });
+      if (receipt.status !== "success") throw new Error("领取交易执行失败。");
+      await loadOwned(account);
+      setStage("success");
+    } catch (cause) {
+      setStage("error");
+      setError(`领取失败：${explainError(cause)}`);
+    }
+  }
+
   return <main className={styles.page}>
     <header className={styles.header}>
-      <Link className={styles.brand} href="/protocol"><span className={styles.mark}>T</span><span>TinyAI Protocol</span></Link>
-      <nav><Link href="/protocol">Mint</Link><Link href="/my-ai">我的 AI</Link><Link href="/market">Market</Link><GitHubLink /><Link href="/docs">Docs</Link></nav>
+      <Link className={styles.brand} href="/protocol"><BrandMark className={styles.mark} /><span>TinyAI Protocol</span></Link>
+      <nav><Link href="/protocol">Mint</Link><Link href="/my-ai">我的 AI</Link><Link href="/market">Market</Link><GitHubLink /><XLink /><Link href="/docs">Docs</Link></nav>
       <div className={styles.walletArea}>
         <span><i className={deployed ? styles.online : styles.offline} />{config.chainName}</span>
-        <button type="button" onClick={connectWallet} disabled={stage === "connecting"}>{account ? short(account) : "连接钱包"}</button>
+        <button type="button" onClick={openWalletModal} disabled={stage === "connecting"}>{account ? short(account) : "连接钱包"}</button>
       </div>
     </header>
 
@@ -234,6 +317,11 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
       <button type="button" onClick={switchNetwork} disabled={stage === "connecting"}>{switchLabel}</button>
     </section>}
     {error && <section className={`${styles.status} ${styles.statusError}`} aria-live="polite"><span>{error}</span><button type="button" onClick={() => { setError(""); setStage("idle"); }}>关闭</button></section>}
+    {!error && ["signing", "confirming", "success"].includes(stage) && <section className={styles.status} aria-live="polite">
+      <span>{stage === "signing" ? "等待钱包确认领取…" : stage === "confirming" ? "交易已发送，等待区块确认…" : "交易税奖励已领取。"}</span>
+      {lastTx && config.explorerBaseUrl && <a href={`${config.explorerBaseUrl}/tx/${lastTx}`} target="_blank" rel="noreferrer">查看交易 ↗</a>}
+      {stage === "success" && <button type="button" onClick={() => setStage("idle")}>关闭</button>}
+    </section>}
 
     <section className={styles.dashboardPanel}>
       <div className={styles.dashboardMeta}>
@@ -241,7 +329,12 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
         <b>{stage === "loading" ? "正在读取链上所有权…" : `拥有 ${records.length} 只 AI`}</b>
       </div>
 
-      {!account ? <div className={styles.emptyDashboard}><div><h2>先连接钱包</h2><p>连接只用于确认当前地址，不会自动签名，也不会自动发送交易。</p><button type="button" onClick={connectWallet}>连接钱包</button></div></div>
+      {holderVaultAddress && account && records.length > 0 && <section className={styles.rewardPanel}>
+        <div><span>FLAP TRADE TAX / AI HOLDER REWARD</span><h2>{formatUnits(claimableRewards, rewardDecimals)} {rewardSymbol}</h2><p>每只 AI 是一个等权份额。新 AI 从诞生后开始参与；AI 转手时，尚未领取的份额会随 AI 一起转给新主人。</p></div>
+        <button className={styles.primary} type="button" onClick={() => { void claimRewards(); }} disabled={claimableRewards === 0n || wrongChain || ["signing", "confirming"].includes(stage)}>领取奖励</button>
+      </section>}
+
+      {!account ? <div className={styles.emptyDashboard}><div><h2>先连接钱包</h2><p>连接只用于确认当前地址，不会自动签名，也不会自动发送交易。</p><button type="button" onClick={openWalletModal}>选择钱包</button></div></div>
         : stage === "loading" ? <div className={styles.emptyDashboard}><div><h2>正在整理你的 AI</h2><p>从链上所有权记录读取，不靠手填编号。</p></div></div>
         : records.length === 0 ? <div className={styles.emptyDashboard}><div><h2>这个钱包还没有 AI</h2><p>去 Mint 页面铸造一只，或者从市场买入一只。</p><Link href="/protocol">前往 Mint</Link></div></div>
         : <div className={styles.aiGrid}>{records.map((record) => <article className={styles.aiCard} key={record.id.toString()}>
@@ -254,5 +347,15 @@ export function MyAIConsole({ config }: { config: DeploymentConfig }) {
     </section>
 
     <footer><span>TINYAI OWNER DASHBOARD</span><span>{config.buildLabel}</span><span>CURRENT OWNER CONTROLS THE ROOM</span></footer>
+    <WalletSelectorModal
+      open={walletModalOpen}
+      ready={walletDiscoveryReady}
+      wallets={wallets}
+      selectedId={selectedWalletId}
+      connectingId={connectingWalletId}
+      error={walletModalOpen ? error : ""}
+      onClose={closeWalletModal}
+      onSelect={connectWallet}
+    />
   </main>;
 }

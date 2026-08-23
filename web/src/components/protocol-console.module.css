@@ -45,14 +45,10 @@
 }
 
 .mark {
-  display: grid;
+  display: block;
+  flex: 0 0 auto;
   width: 36px;
   height: 36px;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--yellow);
-  font-family: Georgia, serif;
-  font-size: 22px;
 }
 
 .header nav {
@@ -272,6 +268,11 @@
 .dashboardMeta { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 16px; padding: 14px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
 .dashboardMeta span { color: rgba(21, 21, 21, 0.6); font-size: 12px; }
 .dashboardMeta b { font: 850 13px ui-monospace, monospace; }
+.rewardPanel { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 30px; margin-bottom: 18px; padding: 24px; border: 1px solid var(--ink); background: rgba(240, 185, 11, 0.16); box-shadow: 6px 6px 0 rgba(21, 21, 21, 0.08); }
+.rewardPanel span { font: 800 10px ui-monospace, monospace; letter-spacing: 0.1em; }
+.rewardPanel h2 { margin: 9px 0 7px; font-size: 30px; letter-spacing: -0.035em; }
+.rewardPanel p { max-width: 760px; margin: 0; color: rgba(21, 21, 21, 0.64); font-size: 12px; line-height: 1.6; }
+.rewardPanel button { min-width: 128px; }
 .aiGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .aiCard { display: flex; min-width: 0; min-height: 330px; flex-direction: column; padding: 20px; border: 1px solid var(--ink); background: rgba(255, 255, 255, 0.58); box-shadow: 6px 6px 0 rgba(21, 21, 21, 0.08); }
 .aiCardHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 800 10px ui-monospace, monospace; letter-spacing: 0.08em; }
@@ -335,6 +336,8 @@
   .dashboardIntro { padding: 52px 0 32px; }
   .dashboardIntro h1 { font-size: clamp(39px, 12vw, 52px); }
   .dashboardMeta { align-items: flex-start; flex-direction: column; }
+  .rewardPanel { grid-template-columns: 1fr; }
+  .rewardPanel button { width: 100%; }
   .aiGrid { grid-template-columns: 1fr; }
   .ownerActions { display: grid; grid-template-columns: 1fr; }
   .page footer { flex-direction: column; padding: 24px 16px; }

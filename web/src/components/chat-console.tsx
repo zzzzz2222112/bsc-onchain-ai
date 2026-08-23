@@ -13,7 +13,6 @@ import {
   parseSignature,
   toHex,
   type Address,
-  type EIP1193Provider,
   type Hash,
 } from "viem";
 import { chatAbi, intentNames, modelCardAbi, tokenAbi, type DeploymentConfig } from "@/lib/contracts";
@@ -54,13 +53,6 @@ type ModelMeta = {
 };
 type WalletMeta = { balance: bigint; allowance: bigint; turns: number; mood: number; lastIntent: number };
 type Message = { id: string; role: "user" | "ai"; text: string; intent?: number; secondaryIntent?: number; confidence?: number; followedContext?: boolean; mode?: "preview" | "confirmed" };
-type InjectedProvider = EIP1193Provider & {
-  on?: (event: string, listener: (...args: unknown[]) => void) => void;
-  removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
-};
-
-declare global { interface Window { ethereum?: InjectedProvider } }
-
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as Address;
 const prompts = ["你为什么算真正的链上 AI？", "怎么保护我的钱包？", "解释一下 Gas 费用", "给我一个链上产品点子"];
 const stageCopy: Record<Stage, string> = {

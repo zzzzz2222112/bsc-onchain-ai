@@ -18,7 +18,7 @@ TinyAI Protocol 是一套面向 EVM 的链上 AI 协议。它不把“连接钱�
 
 保存对话是 owner-only 状态转换。协议验证 AI 所有权，执行当前大脑，把回答和执行路径压缩为 `traceHash`，然后推进 `turns`、`experience`、`memoryRoot` 和公开记忆环。整个 prompt 和 response 都会进入公开事件，因此协议不提供隐私推理。
 
-组件不是图片属性。它们是有终身供应上限的 ERC-1155 状态变更权。融合会销毁组件，并直接改变目标 AI 的记忆容量、性格、表达范围或技能位。市场则为 AI 和组件提供非托管固定价结算：购买前资产留在卖家钱包，成交款记入卖家可提取余额，市场本身没有手续费管理入口。
+组件不是图片属性。它们是有终身供应上限的 ERC-1155 状态变更权。融合会销毁组件，并直接改变目标 AI 的记忆容量、性格、表达范围或技能位。市场则为 AI 和组件提供非托管固定价结算：购买前资产留在卖家钱包；Token Mode 成交时 TINYAI 从买家直接进入卖家钱包，市场本身没有手续费管理入口。
 
 TinyAI 不主张把通用大模型完整塞入 EVM。它提出的是一个更精确的协议原语：一个小型 AI 的执行、身份、状态、升级权和经济交互可以被任何节点复现和验证。
 
@@ -240,17 +240,16 @@ Fusion requires AI ownership and a non-wasted effect. The protocol burns the com
 
 Listings are non-custodial. Assets remain with sellers until purchase, and ownership, balance and approval are revalidated during settlement.
 
-The purchase path is:
+The Token Mode purchase path is:
 
-1. validate listing and exact payment;
+1. validate listing, allowance and exact token payment;
 2. update remaining quantity or remove the listing;
-3. credit the seller's `owed` balance;
-4. transfer the asset; and
-5. let the seller withdraw proceeds separately.
+3. transfer the listed TINYAI amount directly from buyer to seller; and
+4. transfer the asset atomically.
 
 ERC-1155 listings support partial fills. ERC-721 listings transfer one AI.
 
-The market has no owner, fee recipient or mutable fee path. It guarantees contract execution rules, not demand or liquidity.
+The market has no owner, fee recipient or mutable fee path. It guarantees contract execution rules, not demand or liquidity. The historical Genesis BNB market uses a separate seller `owed` balance; that accounting path is not used by Token Mode.
 
 ## 10. Permission model
 
@@ -267,7 +266,7 @@ Governance roles use two-step ownership transfer. Direct deployment avoids proxy
 
 ## 11. Economic surfaces
 
-The reference protocol fixes:
+The deployed Genesis BNB mode fixes:
 
 - maximum AI supply: 10,000;
 - AI mint price: 0.0001 BNB;
@@ -278,7 +277,11 @@ The reference protocol fixes:
 
 Primary mint proceeds route to configured treasuries. Market purchase value becomes a seller liability. Conversation callers pay network gas directly to validators.
 
-These economics are independent of any future fungible token design.
+The Flap Token Mode release candidate defines the token as `TinyAI` (`TINYAI`) and preserves the same 10,000-AI cap, 100,000-component lifetime cap and zero protocol fees for chat and secondary-market settlement, while changing both primary mint prices to exactly 500 TINYAI. It rejects fee-on-transfer underpayment by validating the protocol's exact token balance increase.
+
+The future Flap token is quoted against BSC NVDAB. Buy tax and sell tax are each fixed at 1% for 30 days (2,592,000 seconds) from the launch transaction. The portion of Flap trading tax that reaches the configured beneficiary is routed to a non-custodial AI-holder reward Vault: one currently owned AI represents one equal reward share, rewards do not accrue retroactively to newly minted AI, and unclaimed rewards follow the ERC-721 on transfer. Flap-level deductions occur before beneficiary distribution, so this does not claim that gross trading tax is distributed without deduction.
+
+Token Mode remains a release candidate until deterministic contract deployment, final Flap token creation and live-chain reciprocal binding checks are complete. A Flap salt reservation is an optional front-running mitigation, not a protocol prerequisite: an operator may explicitly choose an unlocked launch, but must accept that a public-mempool observer could copy the salt first. The current BNB Genesis deployment remains canonical until the Token Mode evidence is published.
 
 ## 12. Security invariants
 
@@ -292,7 +295,7 @@ The implementation is designed around the following invariants:
 - AI and component caps and prices have no owner setter.
 - Component consumption rejects a no-op effect.
 - Market state and proceeds accounting update before external asset transfer.
-- Seller proceeds use pull payments.
+- Token Mode seller proceeds settle directly in TINYAI; the Genesis BNB edition uses pull payments.
 - The market has no administrative fee path.
 - Persistent interaction evidence is public.
 
@@ -370,19 +373,22 @@ The EVM does not need to imitate a data center for this primitive to be meaningf
 
 ## Appendix A. Core bounds
 
-| Parameter | Protocol bound |
-| --- | --- |
-| Maximum AI supply | 10,000 |
-| Fixed AI mint price | 0.0001 BNB |
-| Maximum component lifetime supply | 100,000 |
-| Fixed component mint price | 0.0001 BNB |
-| Maximum prompt size | 280 bytes |
-| Maximum memory capacity | 8 slots |
-| Maximum additional variants | 2 |
-| Brain migration | Higher enabled versions only |
-| Brain sealing | Irreversible |
-| Market fee | 0 |
-| Conversation fee | 0 |
+| Parameter | Genesis BNB mode | Flap Token Mode release candidate |
+| --- | --- | --- |
+| Maximum AI supply | 10,000 | 10,000 |
+| Fixed AI mint price | 0.0001 BNB | 500 new Flap tokens |
+| Maximum component lifetime supply | 100,000 | 100,000 |
+| Fixed component mint price | 0.0001 BNB | 500 new Flap tokens |
+| Maximum prompt size | 280 bytes | 280 bytes |
+| Maximum memory capacity | 8 slots | 8 slots |
+| Maximum additional variants | 2 | 2 |
+| Brain migration | Higher enabled versions only | Higher enabled versions only |
+| Brain sealing | Irreversible | Irreversible |
+| Market fee | 0 | 0 |
+| Conversation fee | 0 | 0 |
+| Buy tax | Not applicable | 1% for 30 days |
+| Sell tax | Not applicable | 1% for 30 days |
+| Quote / reward asset | BNB | NVDAB |
 
 ## Appendix B. Terminology
 

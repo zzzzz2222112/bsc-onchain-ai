@@ -8,7 +8,7 @@ export function BrandMark({ className }: { className?: string }) {
       className={className}
       height={36}
       loading="eager"
-      src="/icon.svg"
+      src="/tinyai-avatar.png"
       width={36}
     />
   );

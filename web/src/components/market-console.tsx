@@ -8,14 +8,16 @@ import {
   custom,
   defineChain,
   formatEther,
+  formatUnits,
   http,
   parseAbiItem,
   parseEther,
+  parseUnits,
   type Address,
   type EIP1193Provider,
   type Hash,
 } from "viem";
-import { componentsAbi, marketAbi, protocolAbi, type DeploymentConfig } from "@/lib/contracts";
+import { componentsAbi, marketAbi, protocolAbi, tokenAbi, tokenMarketAbi, type DeploymentConfig } from "@/lib/contracts";
 import { canAutoAddNetwork, switchOrAddNetwork } from "@/lib/wallet-network";
 import { GitHubLink } from "./github-link";
 import styles from "./market-console.module.css";
@@ -79,7 +81,10 @@ function explainError(error: unknown) {
   const message = value?.details || value?.cause?.details || value?.shortMessage || value?.cause?.message || value?.message || "操作没有完成";
   if (/batch size/i.test(message)) return "一次 RPC 读取数量超过代理上限，请刷新页面后重试。";
   if (/rate limit|too many requests|429/i.test(message)) return "链上读取过于集中，请稍后重试。";
-  if (/insufficient funds/i.test(message)) return "钱包 BNB 不足，无法支付价格或 Gas。";
+  if (/ERC20InsufficientBalance|allowance|transfer amount exceeds|insufficient token/i.test(message)) return "代币余额或授权不足。";
+  if (/UnsupportedPaymentToken/i.test(message)) return "这种代币的实际到账数量与标价不一致，市场拒绝成交。";
+  if (/PaymentTokenNotDeployed/i.test(message)) return "结算代币尚未完成部署。";
+  if (/insufficient funds/i.test(message)) return "钱包 BNB 不足，无法支付网络 Gas。";
   if (/MissingApproval/i.test(message)) return "卖家的资产授权已经失效，请刷新市场。";
   if (/InvalidListing/i.test(message)) return "这件商品已经成交、撤销或失效，请刷新市场。";
   if (/wrong chain|chain.*mismatch|network/i.test(message)) return "钱包网络不匹配，请先切换到页面显示的网络。";
@@ -106,6 +111,11 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
   const protocolAddress = config.protocolAddress || null;
   const componentsAddress = config.componentsAddress || null;
   const marketAddress = config.marketAddress || null;
+  const tokenMode = config.settlementMode === "token";
+  const paymentTokenAddress = config.paymentTokenAddress || null;
+  const paymentSymbol = tokenMode ? (config.paymentTokenSymbol || "TOKEN") : config.nativeSymbol;
+  const paymentDecimals = tokenMode ? (config.paymentTokenDecimals ?? 18) : 18;
+  const activeMarketAbi = tokenMode ? tokenMarketAbi : marketAbi;
   const deployed = Boolean(protocolAddress && componentsAddress && marketAddress);
   const chain = useMemo(() => defineChain({
     id: config.chainId,
@@ -127,15 +137,17 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
   const [lastTx, setLastTx] = useState<Hash | null>(null);
   const [meta, setMeta] = useState<MarketMeta | null>(null);
   const [owed, setOwed] = useState(0n);
+  const [paymentBalance, setPaymentBalance] = useState(0n);
+  const [paymentAllowance, setPaymentAllowance] = useState(0n);
 
-  const [aiPrice, setAiPrice] = useState("0.01");
+  const [aiPrice, setAiPrice] = useState(tokenMode ? "500" : "0.01");
   const [selectedAI, setSelectedAI] = useState<AIRecord | null>(null);
   const [ownedAIs, setOwnedAIs] = useState<AIRecord[]>([]);
   const [ownedAILoading, setOwnedAILoading] = useState(false);
 
   const [componentId, setComponentId] = useState("1");
   const [componentAmount, setComponentAmount] = useState("1");
-  const [componentPrice, setComponentPrice] = useState("0.001");
+  const [componentPrice, setComponentPrice] = useState(tokenMode ? "500" : "0.001");
   const [componentBalance, setComponentBalance] = useState(0n);
   const [componentApproved, setComponentApproved] = useState(false);
 
@@ -161,6 +173,8 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
   const latestListing = meta && meta.nextListingId > 1n ? meta.nextListingId - 1n : 0n;
   const loadedAI = listings.filter((item) => item.assetKind === 1).length;
   const loadedComponents = listings.length - loadedAI;
+  const formatPrice = useCallback((value: bigint) => tokenMode ? formatUnits(value, paymentDecimals) : formatEther(value), [paymentDecimals, tokenMode]);
+  const parsePrice = useCallback((value: string) => tokenMode ? parseUnits(value, paymentDecimals) : parseEther(value), [paymentDecimals, tokenMode]);
 
   const filteredListings = useMemo(() => {
     const term = search.trim().toLowerCase().replace(/^#/, "");
@@ -190,24 +204,41 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
     const user = requested === undefined ? account : requested;
     if (!user || !componentsAddress || !marketAddress) {
       setOwed(0n);
+      setPaymentBalance(0n);
+      setPaymentAllowance(0n);
       setComponentBalance(0n);
       setComponentApproved(false);
       return;
     }
     const id = /^\d+$/.test(componentId) && BigInt(componentId) > 0n ? BigInt(componentId) : 1n;
     try {
-      const [currentOwed, balance, approved] = await Promise.all([
-        publicClient.readContract({ address: marketAddress, abi: marketAbi, functionName: "owed", args: [user] }),
+      const [balance, approved] = await Promise.all([
         publicClient.readContract({ address: componentsAddress, abi: componentsAbi, functionName: "balanceOf", args: [user, id] }),
         publicClient.readContract({ address: componentsAddress, abi: componentsAbi, functionName: "isApprovedForAll", args: [user, marketAddress] }),
       ]);
-      setOwed(currentOwed);
       setComponentBalance(balance);
       setComponentApproved(approved);
+      if (tokenMode) {
+        if (!paymentTokenAddress) throw new Error("Token Mode 尚未配置结算代币地址。");
+        const [onchainToken, tokenBalance, allowance] = await Promise.all([
+          publicClient.readContract({ address: marketAddress, abi: tokenMarketAbi, functionName: "paymentToken" }),
+          publicClient.readContract({ address: paymentTokenAddress, abi: tokenAbi, functionName: "balanceOf", args: [user] }),
+          publicClient.readContract({ address: paymentTokenAddress, abi: tokenAbi, functionName: "allowance", args: [user, marketAddress] }),
+        ]);
+        if (onchainToken.toLowerCase() !== paymentTokenAddress.toLowerCase()) throw new Error("页面配置的结算代币与市场合约不一致。");
+        setOwed(0n);
+        setPaymentBalance(tokenBalance);
+        setPaymentAllowance(allowance);
+      } else {
+        const currentOwed = await publicClient.readContract({ address: marketAddress, abi: marketAbi, functionName: "owed", args: [user] });
+        setOwed(currentOwed);
+        setPaymentBalance(0n);
+        setPaymentAllowance(0n);
+      }
     } catch (cause) {
       setError(`读取钱包市场状态失败：${explainError(cause)}`);
     }
-  }, [account, componentId, componentsAddress, marketAddress, publicClient]);
+  }, [account, componentId, componentsAddress, marketAddress, paymentTokenAddress, publicClient, tokenMode]);
 
   const loadMarketplace = useCallback(async (append = false) => {
     if (!marketAddress || !protocolAddress || !componentsAddress) {
@@ -218,10 +249,15 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
     setMarketError("");
     try {
       const [marketFeeBps, nextListingId] = await Promise.all([
-        publicClient.readContract({ address: marketAddress, abi: marketAbi, functionName: "MARKET_FEE_BPS" }),
-        publicClient.readContract({ address: marketAddress, abi: marketAbi, functionName: "nextListingId" }),
+        publicClient.readContract({ address: marketAddress, abi: activeMarketAbi, functionName: "MARKET_FEE_BPS" }),
+        publicClient.readContract({ address: marketAddress, abi: activeMarketAbi, functionName: "nextListingId" }),
       ]);
       if (marketFeeBps !== 0) throw new Error("市场合约版本不匹配，请刷新部署配置。");
+      if (tokenMode) {
+        if (!paymentTokenAddress) throw new Error("Token Mode 尚未配置结算代币地址。");
+        const onchainToken = await publicClient.readContract({ address: marketAddress, abi: tokenMarketAbi, functionName: "paymentToken" });
+        if (onchainToken.toLowerCase() !== paymentTokenAddress.toLowerCase()) throw new Error("页面配置的结算代币与市场合约不一致。");
+      }
       setMeta({ nextListingId });
       let cursor = append ? scanCursor.current : nextListingId;
       let scanned = 0;
@@ -236,7 +272,7 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
         const raw = await Promise.all(ids.map(async (id) => {
           const [seller, asset, tokenId, unitPrice, amount, assetKind] = await publicClient.readContract({
             address: marketAddress,
-            abi: marketAbi,
+            abi: activeMarketAbi,
             functionName: "listings",
             args: [id],
           });
@@ -305,7 +341,7 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
     } finally {
       setMarketLoading(false);
     }
-  }, [componentsAddress, marketAddress, protocolAddress, publicClient]);
+  }, [activeMarketAbi, componentsAddress, marketAddress, paymentTokenAddress, protocolAddress, publicClient, tokenMode]);
 
   const loadOwnedAIs = useCallback(async (owner: Address | null) => {
     if (!owner || !protocolAddress || !marketAddress) {
@@ -513,10 +549,10 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
     if (!protocolAddress || !marketAddress || !selectedAI) return;
     try {
       const aiId = selectedAI.id;
-      const price = parseEther(aiPrice);
+      const price = parsePrice(aiPrice);
       if (price < 1n) throw new Error("AI 价格必须大于 0。");
       const receipt = await transact(`上架 AI #${aiId}`, async (wallet, user) => {
-        const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: marketAbi, functionName: "listAI", args: [protocolAddress, aiId, price] });
+        const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: activeMarketAbi, functionName: "listAI", args: [protocolAddress, aiId, price] });
         setStage("signing");
         return wallet.writeContract(simulation.request);
       });
@@ -539,11 +575,11 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
     try {
       const id = parsePositiveId(componentId, "组件编号");
       const amount = parsePositiveId(componentAmount, "出售数量");
-      const price = parseEther(componentPrice);
+      const price = parsePrice(componentPrice);
       if (amount > componentBalance) throw new Error("出售数量超过钱包持有数量。");
       if (price < 1n) throw new Error("组件单价必须大于 0。");
       const receipt = await transact(`上架组件 #${id}`, async (wallet, user) => {
-        const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: marketAbi, functionName: "listComponents", args: [componentsAddress, id, amount, price] });
+        const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: activeMarketAbi, functionName: "listComponents", args: [componentsAddress, id, amount, price] });
         setStage("signing");
         return wallet.writeContract(simulation.request);
       });
@@ -556,8 +592,27 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
     try {
       const amount = listing.assetKind === 1 ? 1n : parsePositiveId(purchaseAmount, "购买数量");
       if (amount > listing.amount) throw new Error("购买数量超过挂单剩余数量。");
+      const total = listing.unitPrice * amount;
+      if (tokenMode) {
+        if (!account || !paymentTokenAddress) throw new Error("Token Mode 尚未配置结算代币或钱包未连接。");
+        if (paymentBalance < total) throw new Error(`钱包 ${paymentSymbol} 余额不足。`);
+        if (paymentAllowance < total) {
+          const approval = await transact(`授权 ${paymentSymbol} 支付挂单 #${listing.id}`, async (wallet, user) => {
+            const simulation = await publicClient.simulateContract({ account: user, address: paymentTokenAddress, abi: tokenAbi, functionName: "approve", args: [marketAddress, total] });
+            setStage("signing");
+            return wallet.writeContract(simulation.request);
+          });
+          if (!approval) return;
+          setPaymentAllowance(total);
+        }
+      }
       const receipt = await transact(`购买挂单 #${listing.id}`, async (wallet, user) => {
-        const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: marketAbi, functionName: "buy", args: [listing.id, amount], value: listing.unitPrice * amount });
+        if (tokenMode) {
+          const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: tokenMarketAbi, functionName: "buy", args: [listing.id, amount] });
+          setStage("signing");
+          return wallet.writeContract(simulation.request);
+        }
+        const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: marketAbi, functionName: "buy", args: [listing.id, amount], value: total });
         setStage("signing");
         return wallet.writeContract(simulation.request);
       });
@@ -568,7 +623,7 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
   async function cancelListing() {
     if (!marketAddress || !listing) return;
     const receipt = await transact(`撤销挂单 #${listing.id}`, async (wallet, user) => {
-      const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: marketAbi, functionName: "cancel", args: [listing.id] });
+      const simulation = await publicClient.simulateContract({ account: user, address: marketAddress, abi: activeMarketAbi, functionName: "cancel", args: [listing.id] });
       setStage("signing");
       return wallet.writeContract(simulation.request);
     });
@@ -600,7 +655,7 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
       <dl>
         <div><dt>最新挂单编号</dt><dd>#{latestListing.toString()}</dd></div>
         <div><dt>当前载入商品</dt><dd>{listings.length}</dd></div>
-        <div><dt>结算资产</dt><dd>BNB</dd></div>
+        <div><dt>结算资产</dt><dd>{paymentSymbol}</dd></div>
       </dl>
     </section>
 
@@ -648,7 +703,7 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
                   <div className={styles.productTitle}><div><h3>{item.title}</h3><p>#{item.tokenId.toString()} · {short(item.seller, 8, 6)}</p></div>{mine && <span>你的挂单</span>}</div>
                   <p className={styles.productDescription}>{item.description}</p>
                   {item.aiState && <div className={styles.miniTraits}><span>好奇 {item.aiState.curiosity}</span><span>共情 {item.aiState.empathy}</span><span>幽默 {item.aiState.humor}</span></div>}
-                  <div className={styles.priceRow}><div><span>{item.assetKind === 1 ? "总价" : "单价"}</span><strong>{formatEther(item.unitPrice)} BNB</strong></div>{item.assetKind === 2 && <b>剩余 {item.amount.toString()}</b>}</div>
+                  <div className={styles.priceRow}><div><span>{item.assetKind === 1 ? "总价" : "单价"}</span><strong>{formatPrice(item.unitPrice)} {paymentSymbol}</strong></div>{item.assetKind === 2 && <b>剩余 {item.amount.toString()}</b>}</div>
                   <div className={styles.cardActions}><button className={styles.primary} type="button" onClick={() => { setListing(item); setPurchaseAmount("1"); }}>{mine ? "管理挂单" : "查看并购买"}</button></div>
                 </article>;
               })}</div>
@@ -666,19 +721,19 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
               <h3>{listing.title}</h3><p>{listing.description}</p>
               <dl><div><dt>卖家</dt><dd>{short(listing.seller, 10, 8)}</dd></div><div><dt>{listing.assetKind === 1 ? "资产" : "剩余"}</dt><dd>{listing.assetKind === 1 ? `AI #${listing.tokenId}` : listing.amount.toString()}</dd></div></dl>
               {listing.assetKind === 2 && <label>购买数量<input value={purchaseAmount} onChange={(event) => setPurchaseAmount(event.target.value)} inputMode="numeric" /></label>}
-              <div className={styles.deskTotal}><span>本次支付</span><strong>{formatEther(selectedTotal)} BNB</strong></div>
+              <div className={styles.deskTotal}><span>本次支付</span><strong>{formatPrice(selectedTotal)} {paymentSymbol}</strong></div>
               {account?.toLowerCase() === listing.seller.toLowerCase()
                 ? <button type="button" onClick={cancelListing} disabled={wrongChain || busy}>撤销自己的挂单</button>
                 : <button className={styles.primary} type="button" onClick={account ? buyListing : connectWallet} disabled={wrongChain || busy}>{account ? "确认购买" : "连接钱包购买"}</button>}
               {listing.assetKind === 1 && <small>AI 房间只对当前主人开放；购买完成后，它会自动出现在“我的 AI”。</small>}
-              <small>购买前会重新模拟合约；商品已经成交、授权失效或余额不足时，交易不会发送。</small>
-            </> : <div className={styles.deskEmpty}><span>ORDER DESK</span><div>T</div><h3>选择一件商品</h3><p>点击商品卡片里的“查看并购买”，这里会显示卖家、数量和准确的 BNB 总价。</p></div>}
+              <small>{tokenMode ? `首次使用 ${paymentSymbol} 购买时，钱包会先请求代币授权，再请求购买确认。` : "购买前会重新模拟合约；商品已经成交、授权失效或余额不足时，交易不会发送。"}</small>
+            </> : <div className={styles.deskEmpty}><span>ORDER DESK</span><div>T</div><h3>选择一件商品</h3><p>点击商品卡片里的“查看并购买”，这里会显示卖家、数量和准确的 {paymentSymbol} 总价。</p></div>}
           </aside>
         </div>
       </section>
 
       <details className={styles.sellerCenter}>
-        <summary><div><span>SELLER CENTER</span><h2>我要出售 / 管理收入</h2><p>出售工具放在这里，浏览市场不再被表单挡住。</p></div><b>展开工具 ＋</b></summary>
+        <summary><div><span>SELLER CENTER</span><h2>{tokenMode ? "我要出售 / 结算规则" : "我要出售 / 管理收入"}</h2><p>出售工具放在这里，浏览市场不再被表单挡住。</p></div><b>展开工具 ＋</b></summary>
         <div className={styles.sellerGrid}>
           <article className={styles.card}>
             <header><div><span>AI NFT</span><h3>出售一只 AI</h3><p>每只 AI 都能单独定价和上架，多个 AI 互不影响。</p></div></header>
@@ -689,7 +744,7 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
               <button type="button" onClick={() => { void loadOwnedAIs(account); }} disabled={!account || ownedAILoading || busy}>{ownedAILoading ? "读取中" : "刷新"}</button>
             </div>
             {selectedAI ? <div className={styles.assetSummary}><div className={styles.assetMark}>T</div><div><strong>{selectedAI.name}</strong><span>#{selectedAI.id.toString()} / {short(selectedAI.owner, 10, 6)}</span></div><b>你的 AI</b></div> : <p className={styles.empty}>{account ? "当前钱包没有可出售的 AI。" : "连接钱包后会自动显示你拥有的全部 AI。"}</p>}
-            <label>固定价格（BNB）<input value={aiPrice} onChange={(event) => setAiPrice(event.target.value)} inputMode="decimal" /></label>
+            <label>固定价格（{paymentSymbol}）<input value={aiPrice} onChange={(event) => setAiPrice(event.target.value)} inputMode="decimal" /></label>
             <div className={styles.actions}><button type="button" onClick={approveAI} disabled={!ownsSelectedAI || selectedAI?.approved || wrongChain || busy}>{selectedAI?.approved ? "已授权" : "授权 AI"}</button><button className={styles.primary} type="button" onClick={listAI} disabled={!ownsSelectedAI || !selectedAI?.approved || wrongChain || busy}>创建挂单</button></div>
             <small>授权与上架是两次独立确认。挂单期间 AI 仍在你的钱包里。</small>
           </article>
@@ -697,21 +752,26 @@ export function MarketConsole({ config }: { config: DeploymentConfig }) {
           <article className={styles.card}>
             <header><div><span>ERC-1155</span><h3>出售组件</h3><p>组件支持按数量出售，也允许买家部分成交。</p></div><strong className={styles.balance}>持有 {componentBalance.toString()}</strong></header>
             <label>组件<select value={componentId} onChange={(event) => setComponentId(event.target.value)}>{components.map((item) => <option key={item.id} value={item.id}>#{item.id} {item.name}</option>)}</select></label>
-            <div className={styles.fieldGrid}><label>出售数量<input value={componentAmount} onChange={(event) => setComponentAmount(event.target.value)} inputMode="numeric" /></label><label>单价（BNB）<input value={componentPrice} onChange={(event) => setComponentPrice(event.target.value)} inputMode="decimal" /></label></div>
+            <div className={styles.fieldGrid}><label>出售数量<input value={componentAmount} onChange={(event) => setComponentAmount(event.target.value)} inputMode="numeric" /></label><label>单价（{paymentSymbol}）<input value={componentPrice} onChange={(event) => setComponentPrice(event.target.value)} inputMode="decimal" /></label></div>
             <div className={styles.actions}><button type="button" onClick={approveComponents} disabled={!account || componentApproved || wrongChain || busy}>{componentApproved ? "已授权" : "授权组件"}</button><button className={styles.primary} type="button" onClick={listComponents} disabled={!account || !componentApproved || componentBalance === 0n || wrongChain || busy}>创建挂单</button></div>
             <small>组件授权覆盖你的 TinyAI 组件，可以在钱包或合约中撤销。</small>
           </article>
 
           <article className={`${styles.card} ${styles.settlement}`}>
-            <header><div><span>SETTLEMENT</span><h3>成交款与规则</h3><p>成交款先按地址记账，再由卖家主动提取。</p></div></header>
-            <div className={styles.owed}><span>可提取</span><strong>{formatEther(owed)} BNB</strong></div>
-            <button className={styles.primary} type="button" onClick={withdraw} disabled={!account || owed === 0n || wrongChain || busy}>提取到钱包</button>
-            <ul><li><span>成交款</span><b>{meta ? "卖家提取" : "-"}</b></li><li><span>资产托管</span><b>不托管</b></li><li><span>流动性保证</span><b>没有</b></li></ul>
+            <header><div><span>SETTLEMENT</span><h3>成交款与规则</h3><p>{tokenMode ? `成交时 ${paymentSymbol} 由买家直接转给卖家，不需要再提取。` : "成交款先按地址记账，再由卖家主动提取。"}</p></div></header>
+            {tokenMode ? <>
+              <div className={styles.owed}><span>钱包余额</span><strong>{formatPrice(paymentBalance)} {paymentSymbol}</strong></div>
+              <ul><li><span>成交款</span><b>{meta ? "直接到账" : "-"}</b></li><li><span>资产托管</span><b>不托管</b></li><li><span>流动性保证</span><b>没有</b></li></ul>
+            </> : <>
+              <div className={styles.owed}><span>可提取</span><strong>{formatEther(owed)} BNB</strong></div>
+              <button className={styles.primary} type="button" onClick={withdraw} disabled={!account || owed === 0n || wrongChain || busy}>提取到钱包</button>
+              <ul><li><span>成交款</span><b>{meta ? "卖家提取" : "-"}</b></li><li><span>资产托管</span><b>不托管</b></li><li><span>流动性保证</span><b>没有</b></li></ul>
+            </>}
           </article>
         </div>
       </details>
     </div>
 
-    <footer><span>TINYAI MARKET / BNB SETTLEMENT</span><span>逐批读取有效链上挂单</span><span>NON-CUSTODIAL</span></footer>
+    <footer><span>TINYAI MARKET / {paymentSymbol} SETTLEMENT</span><span>逐批读取有效链上挂单</span><span>NON-CUSTODIAL</span></footer>
   </main>;
 }
