@@ -320,6 +320,9 @@ export const protocolAbi = [
   { type: "function", name: "nextAIId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "MAX_AI_SUPPLY", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "mintPrice", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "CHAT_PRICE", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "paymentToken", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
+  { type: "function", name: "holderVault", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "tokenOfOwnerByIndex", stateMutability: "view", inputs: [{ name: "owner", type: "address" }, { name: "index", type: "uint256" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "tokensOfOwner", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256[]" }] },
@@ -380,6 +383,7 @@ export const componentsAbi = [
   { type: "function", name: "MAX_COMPONENT_SUPPLY", stateMutability: "view", inputs: [], outputs: [{ type: "uint64" }] },
   { type: "function", name: "totalMinted", stateMutability: "view", inputs: [], outputs: [{ type: "uint64" }] },
   { type: "function", name: "catalogSealed", stateMutability: "view", inputs: [], outputs: [{ type: "bool" }] },
+  { type: "function", name: "paymentToken", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "account", type: "address" }, { name: "id", type: "uint256" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "isApprovedForAll", stateMutability: "view", inputs: [{ name: "account", type: "address" }, { name: "operator", type: "address" }], outputs: [{ type: "bool" }] },
   { type: "function", name: "setApprovalForAll", stateMutability: "nonpayable", inputs: [{ name: "operator", type: "address" }, { name: "approved", type: "bool" }], outputs: [] },
@@ -398,6 +402,7 @@ export const componentsAbi = [
 export const marketAbi = [
   { type: "function", name: "nextListingId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "MARKET_FEE_BPS", stateMutability: "view", inputs: [], outputs: [{ type: "uint16" }] },
+  { type: "function", name: "paymentToken", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   { type: "function", name: "owed", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ type: "uint256" }] },
   {
     type: "function", name: "listings", stateMutability: "view", inputs: [{ name: "listingId", type: "uint256" }],
@@ -426,6 +431,18 @@ export const intentNames = [
   "问候", "身份", "能力", "链上真实性", "市场价格", "安全风险", "合约解释", "代币经济", "DeFi", "NFT", "钱包", "交易", "Gas", "代码", "比较", "规划", "脑暴", "幽默", "积极情绪", "消极情绪", "感谢", "告别", "隐私", "记忆", "治理", "追问", "未知",
 ] as const;
 
+export const holderVaultAbi = [
+  { type: "function", name: "rewardToken", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
+  { type: "function", name: "protocol", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
+  { type: "function", name: "registeredAICount", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "totalReceived", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "totalClaimed", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "claimable", stateMutability: "view", inputs: [{ name: "aiId", type: "uint256" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "claimableMany", stateMutability: "view", inputs: [{ name: "aiIds", type: "uint256[]" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "sync", stateMutability: "nonpayable", inputs: [], outputs: [{ name: "received", type: "uint256" }, { name: "allocated", type: "uint256" }] },
+  { type: "function", name: "claim", stateMutability: "nonpayable", inputs: [{ name: "aiIds", type: "uint256[]" }, { name: "recipient", type: "address" }], outputs: [{ name: "amount", type: "uint256" }] },
+] as const;
+
 export type DeploymentConfig = {
   engineVersion: number;
   chainId: number;
@@ -439,5 +456,12 @@ export type DeploymentConfig = {
   marketAddress?: `0x${string}` | null;
   brainRegistryAddress?: `0x${string}` | null;
   protocolFromBlock?: number;
+  settlementMode?: "native" | "token";
+  paymentTokenAddress?: `0x${string}` | null;
+  paymentTokenSymbol?: string;
+  paymentTokenDecimals?: number;
+  holderVaultAddress?: `0x${string}` | null;
+  rewardAssetSymbol?: string;
+  rewardAssetDecimals?: number;
   buildLabel: string;
 };

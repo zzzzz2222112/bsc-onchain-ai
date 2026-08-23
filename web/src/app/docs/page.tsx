@@ -158,7 +158,7 @@ export default function DocsPage() {
 
           <section className={styles.section} id="components">
             <p className={styles.kicker}>组件协议</p><h2>组件不是皮肤，而是一次性的状态升级权。</h2>
-            <p>六种创世组件合计永久封顶 100,000 个，全部以 0.0001 BNB 公开 Mint，不限制单钱包数量。目录部署时封存，融合会销毁 ERC-1155 组件，并直接改变目标 AI 的协议状态。</p>
+            <p>Token Mode 的六种创世组件合计永久封顶 100,000 个，每个固定收取 500 枚新 Flap 代币，不限制单钱包数量。目录部署时封存，融合会销毁 ERC-1155 组件，并直接改变目标 AI 的协议状态。</p>
             <div className={styles.componentTable} role="table" aria-label="创世组件">
               <div className={styles.tableHead} role="row"><span>ID</span><span>COMPONENT</span><span>EFFECT</span><span>BOUND</span></div>
               {components.map(([id, name, effect, bound]) => <div className={styles.tableRow} role="row" key={id}><span>{id}</span><b>{name}</b><span>{effect}</span><span>{bound}</span></div>)}
@@ -180,7 +180,8 @@ export default function DocsPage() {
               <p><b>Pull payment</b><span>成交款记入卖家余额，再由卖家主动提取。</span></p><p><b>结算规则</b><span>合约按挂牌价格完成结算，不负责撮合或报价。</span></p>
             </div>
             <p className={styles.protocolNote}>市场提供公开结算路线，不承诺流动性、买家、成交速度或价格上涨。</p>
-            <p className={styles.protocolNote}>AI 与组件的初始 Mint 收入只可提取到配置的 treasury。对话不收协议费用；保存对话的人自己向 BSC 支付 Gas。</p>
+            <p className={styles.protocolNote}>Token Mode 中，AI 与单个组件的 Mint 价格都永久固定为 500 枚新币，市场协议手续费和对话协议费均为 0；用户只需另外向 BSC 支付交易 Gas。</p>
+            <p className={styles.protocolNote}>Flap 交易税中实际到达 beneficiary 的部分进入 AI 持有者 Vault，一只 AI 对应一个 NVDAB 奖励份额。Flap 平台级扣除发生在 beneficiary 分配之前，因此这里不表示毛交易税全部归持有人。</p>
           </section>
 
           <section className={styles.section} id="contracts">

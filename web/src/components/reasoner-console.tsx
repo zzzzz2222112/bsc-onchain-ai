@@ -11,7 +11,6 @@ import {
   http,
   toHex,
   type Address,
-  type EIP1193Provider,
   type Hash,
 } from "viem";
 import { reasonerV4Abi, type DeploymentConfig } from "@/lib/contracts";
@@ -53,13 +52,6 @@ type Message = {
   mode: "preview" | "confirmed";
   reasoning?: ReasoningResult;
 };
-type InjectedProvider = EIP1193Provider & {
-  on?: (event: string, listener: (...args: unknown[]) => void) => void;
-  removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
-};
-
-declare global { interface Window { ethereum?: InjectedProvider } }
-
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as Address;
 const MASK_64 = (1n << 64n) - 1n;
 const SPECULATIVE_ANSWER = 1n << 13n;

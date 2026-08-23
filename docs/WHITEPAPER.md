@@ -267,7 +267,7 @@ Governance roles use two-step ownership transfer. Direct deployment avoids proxy
 
 ## 11. Economic surfaces
 
-The reference protocol fixes:
+The deployed Genesis BNB mode fixes:
 
 - maximum AI supply: 10,000;
 - AI mint price: 0.0001 BNB;
@@ -278,7 +278,11 @@ The reference protocol fixes:
 
 Primary mint proceeds route to configured treasuries. Market purchase value becomes a seller liability. Conversation callers pay network gas directly to validators.
 
-These economics are independent of any future fungible token design.
+The Flap Token Mode release candidate preserves the same 10,000-AI cap, 100,000-component lifetime cap and zero protocol fees for chat and secondary-market settlement, while changing both primary mint prices to exactly 500 newly created Flap tokens. It rejects fee-on-transfer underpayment by validating the protocol's exact token balance increase.
+
+The future Flap token is quoted against BSC NVDAB. The portion of Flap trading tax that reaches the configured beneficiary is routed to a non-custodial AI-holder reward Vault: one currently owned AI represents one equal reward share, rewards do not accrue retroactively to newly minted AI, and unclaimed rewards follow the ERC-721 on transfer. Flap-level deductions occur before beneficiary distribution, so this does not claim that gross trading tax is distributed without deduction.
+
+Token Mode remains a release candidate until the salt lock, deterministic contract deployment, final Flap token creation and live-chain reciprocal binding checks are complete. The current BNB Genesis deployment remains canonical until that evidence is published.
 
 ## 12. Security invariants
 
@@ -370,19 +374,19 @@ The EVM does not need to imitate a data center for this primitive to be meaningf
 
 ## Appendix A. Core bounds
 
-| Parameter | Protocol bound |
-| --- | --- |
-| Maximum AI supply | 10,000 |
-| Fixed AI mint price | 0.0001 BNB |
-| Maximum component lifetime supply | 100,000 |
-| Fixed component mint price | 0.0001 BNB |
-| Maximum prompt size | 280 bytes |
-| Maximum memory capacity | 8 slots |
-| Maximum additional variants | 2 |
-| Brain migration | Higher enabled versions only |
-| Brain sealing | Irreversible |
-| Market fee | 0 |
-| Conversation fee | 0 |
+| Parameter | Genesis BNB mode | Flap Token Mode release candidate |
+| --- | --- | --- |
+| Maximum AI supply | 10,000 | 10,000 |
+| Fixed AI mint price | 0.0001 BNB | 500 new Flap tokens |
+| Maximum component lifetime supply | 100,000 | 100,000 |
+| Fixed component mint price | 0.0001 BNB | 500 new Flap tokens |
+| Maximum prompt size | 280 bytes | 280 bytes |
+| Maximum memory capacity | 8 slots | 8 slots |
+| Maximum additional variants | 2 | 2 |
+| Brain migration | Higher enabled versions only | Higher enabled versions only |
+| Brain sealing | Irreversible | Irreversible |
+| Market fee | 0 | 0 |
+| Conversation fee | 0 | 0 |
 
 ## Appendix B. Terminology
 

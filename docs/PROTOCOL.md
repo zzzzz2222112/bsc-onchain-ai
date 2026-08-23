@@ -39,19 +39,20 @@ A listing is a non-custodial offer for one AI or a quantity of one component ID.
 
 ## 4. Fixed parameters
 
-| Parameter | Value |
-| --- | ---: |
-| Maximum AI supply | 10,000 |
-| AI mint price | 0.0001 BNB |
-| Genesis component lifetime supply | 100,000 |
-| Component mint price | 0.0001 BNB per unit |
-| Market protocol fee | 0 |
-| Maximum prompt length | 280 bytes |
-| Initial memory capacity | 1 |
-| Maximum memory capacity | 8 |
-| Maximum additional response variants | 2 |
+| Parameter | Genesis BNB mode | Flap Token Mode release candidate |
+| --- | ---: | ---: |
+| Maximum AI supply | 10,000 | 10,000 |
+| AI mint price | 0.0001 BNB | 500 new Flap tokens |
+| Genesis component lifetime supply | 100,000 | 100,000 |
+| Component mint price | 0.0001 BNB per unit | 500 new Flap tokens per unit |
+| Market protocol fee | 0 | 0 |
+| Conversation protocol fee | 0 | 0 |
+| Maximum prompt length | 280 bytes | 280 bytes |
+| Initial memory capacity | 1 | 1 |
+| Maximum memory capacity | 8 | 8 |
+| Maximum additional response variants | 2 | 2 |
 
-These values have no owner setter in the reference implementation.
+These values have no owner setter in their respective reference implementations. Token Mode is preconfigured against the future Flap token address and MUST NOT be presented as a production deployment before the final token-creation transaction and post-deployment verification complete.
 
 ## 5. AI creation
 
@@ -138,7 +139,7 @@ The genesis catalogue MUST be sealed at a combined lifetime cap of 100,000 units
 | 5 | Caution Gene | 15,000 | Caution +5 |
 | 6 | Expression Core | 10,000 | Additional deterministic variant +1 |
 
-Public minting requires exact payment. There is no administrative mint path.
+Public minting requires exact payment. There is no administrative mint path. Token Mode verifies the exact ERC-20 balance delta and rejects fee-on-transfer behavior, so an allowance alone cannot underpay the fixed 500-token amount.
 
 Fusion MUST:
 

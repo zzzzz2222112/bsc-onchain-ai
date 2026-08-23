@@ -11,7 +11,6 @@ import {
   http,
   toHex,
   type Address,
-  type EIP1193Provider,
   type Hash,
 } from "viem";
 import { intentNames, retrieverV5Abi, type DeploymentConfig } from "@/lib/contracts";
@@ -60,13 +59,6 @@ type Message = {
   mode: "preview" | "confirmed";
   retrieval?: RetrievalResult;
 };
-type InjectedProvider = EIP1193Provider & {
-  on?: (event: string, listener: (...args: unknown[]) => void) => void;
-  removeListener?: (event: string, listener: (...args: unknown[]) => void) => void;
-};
-
-declare global { interface Window { ethereum?: InjectedProvider } }
-
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as Address;
 const topicNames = ["未知", "身份", "链上真实性", "BSC", "人类", "Gas", "钱包", "合约", "代币", "DeFi", "NFT", "交易", "隐私", "治理", "规划", "市场", "日常对话"];
 const queryNames = ["未识别", "问候", "定义", "为什么", "怎么做", "比较", "风险", "追问"];

@@ -27,6 +27,13 @@ export default function MarketPage() {
     marketAddress: addressOrNull(process.env.NEXT_PUBLIC_MARKET_ADDRESS),
     brainRegistryAddress: addressOrNull(process.env.NEXT_PUBLIC_BRAIN_REGISTRY_ADDRESS),
     protocolFromBlock: Number(process.env.NEXT_PUBLIC_PROTOCOL_FROM_BLOCK || 0),
+    settlementMode: process.env.NEXT_PUBLIC_SETTLEMENT_MODE === "token" ? "token" : "native",
+    paymentTokenAddress: addressOrNull(process.env.NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS),
+    paymentTokenSymbol: process.env.NEXT_PUBLIC_PAYMENT_TOKEN_SYMBOL || "TINYAI",
+    paymentTokenDecimals: Number(process.env.NEXT_PUBLIC_PAYMENT_TOKEN_DECIMALS || 18),
+    holderVaultAddress: addressOrNull(process.env.NEXT_PUBLIC_HOLDER_VAULT_ADDRESS),
+    rewardAssetSymbol: process.env.NEXT_PUBLIC_REWARD_ASSET_SYMBOL || "BNB",
+    rewardAssetDecimals: Number(process.env.NEXT_PUBLIC_REWARD_ASSET_DECIMALS || 18),
     buildLabel: process.env.NEXT_PUBLIC_BUILD_LABEL || "protocol market build",
   };
   return <MarketConsole config={config} />;
