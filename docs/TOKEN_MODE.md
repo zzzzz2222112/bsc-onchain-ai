@@ -8,7 +8,13 @@ The live BNB-settled TinyAI deployment remains a separate edition. Do not combin
 
 ## Fixed economic boundary
 
+- Token identity: `TinyAI` (`TINYAI`).
+- Public website: `https://bnbtinyai.org`.
+- Public X account: `https://x.com/Tinyaipro`.
+- Pinned token metadata: `QmcFiqZScoop6uDjpPzsxTuSkcEZGLs13iZjSHqFqhY2Qy`.
+- Pinned 1024 x 1024 avatar: `Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq`.
 - Flap quote/liquidity asset: BSC `NVIDIA Corp` (`NVDAB`), `0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436`, 18 decimals.
+- Flap transfer tax: `1%` on buys and `1%` on sells for exactly `30 days` (`2,592,000` seconds) from launch; the configured temporary tax then expires according to the Flap token implementation.
 - AI Mint: `500` units of the new Flap token, paid directly to TinyAI Treasury.
 - One component Mint: `500` units of the new Flap token, paid directly to TinyAI Treasury.
 - Persistent chat and brain upgrades: zero protocol-token charge; the user still pays BSC gas.
@@ -44,14 +50,14 @@ Rewards attach to the AI identity:
 The token is intentionally created last:
 
 1. Set `FLAP_SALT_OUTPUT` to a new private path outside the repository, then run `web/scripts/mine-flap-salt.mjs` locally to find a Tax V3 address ending in `7777`. The script writes the salt only to that new file and prints only the safe predicted CA. Keep the file outside Git and public logs.
-2. Preferably reserve that salt for Tax V3 with `LockFlapSaltForTinyAI.s.sol`. The fee read from the Portal must equal the separately approved `FLAP_SALT_LOCK_FEE` value. An operator who explicitly accepts front-running risk may instead leave it unlocked and set `FLAP_REQUIRE_SALT_LOCK=false` only for the final creation transaction.
+2. Choose the launch path explicitly. This release uses an unlocked salt and sets `FLAP_REQUIRE_SALT_LOCK=false`; that avoids a reservation fee but accepts public-mempool front-running risk. Operators who prefer reservation may instead use `LockFlapSaltForTinyAI.s.sol` after separately verifying and approving the live Portal fee.
 3. Deploy `TinyAIHolderVault` with immutable reward token `NVDAB`.
 4. Deploy Token Mode Components, Protocol and Market against the empty predicted token address. Bind the Vault and Components to the Protocol once.
 5. Simulate `Portal.newTokenV6` and require its return value to equal the prebound address.
 6. Create the Flap token with `NVDAB` as quote token, `quoteAmt=0`, the Vault as beneficiary and `mktBps=10000`.
 7. Read back token, quote token, TaxProcessor, Vault binding, payment-token binding, tax configuration and code hashes before enabling the frontend.
 
-An **unlocked** salt becomes visible in the public mempool and can be copied by a front-runner. The official creation script therefore requires a deployer-owned Tax V3 lock by default. `FLAP_REQUIRE_SALT_LOCK=false` is an explicit override: it accepts only a completely empty lock entry and still aborts if another address has locked the salt. The lock transaction itself reveals the salt too, so a reservation should use a separately verified protected path. Keep the salt outside logs and Git; plain public-mempool submission is not treated as safe merely because the salt was private beforehand.
+An **unlocked** salt becomes visible in the public mempool and can be copied by a front-runner. The creation script still requires a deployer-owned Tax V3 lock by default as a fail-closed safety setting. This release deliberately overrides it with `FLAP_REQUIRE_SALT_LOCK=false`: the script accepts only a completely empty lock entry and still aborts if another address has locked the salt. Keep the salt outside logs and Git before launch, while recognizing that privacy before submission does not protect it after public broadcast.
 
 With an ERC-20 quote asset, Flap currently documents an additional `1 gwei` native value on tax-token creation. `quoteAmt=0` means no initial NVDAB inventory is deposited; it does not remove normal BSC deployment gas or that interface-required `1 gwei` value.
 
@@ -77,9 +83,14 @@ Private launch configuration:
 
 ```dotenv
 FLAP_QUOTE_TOKEN=0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436
+FLAP_TOKEN_NAME=TinyAI
+FLAP_TOKEN_SYMBOL=TINYAI
+FLAP_TOKEN_META=QmcFiqZScoop6uDjpPzsxTuSkcEZGLs13iZjSHqFqhY2Qy
 FLAP_TOKEN_SALT=0xPrivateUntilLaunch
-FLAP_REQUIRE_SALT_LOCK=true
-FLAP_SALT_LOCK_FEE=10000000000000000
+FLAP_REQUIRE_SALT_LOCK=false
+FLAP_BUY_TAX_BPS=100
+FLAP_SELL_TAX_BPS=100
+FLAP_TAX_DURATION=2592000
 PAYMENT_TOKEN=0xPredicted7777Address
 HOLDER_VAULT=0xDeployedHolderVault
 AI_MINT_PRICE=500000000000000000000
@@ -94,7 +105,7 @@ Public frontend configuration after verified deployment:
 ```dotenv
 NEXT_PUBLIC_SETTLEMENT_MODE=token
 NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS=0xCreatedFlapToken
-NEXT_PUBLIC_PAYMENT_TOKEN_SYMBOL=TOKEN
+NEXT_PUBLIC_PAYMENT_TOKEN_SYMBOL=TINYAI
 NEXT_PUBLIC_PAYMENT_TOKEN_DECIMALS=18
 NEXT_PUBLIC_HOLDER_VAULT_ADDRESS=0xTinyAIHolderVault
 NEXT_PUBLIC_REWARD_ASSET_SYMBOL=NVDAB
@@ -126,10 +137,11 @@ The mainnet preflight must additionally prove:
 1. the predicted token address is empty and ends in `7777`;
 2. the live Portal's simulated return equals the predicted address;
 3. `NVDAB` is still allowed as a quote token;
-4. ordinary new-token transfers to Treasury are untaxed and settle exactly;
-5. the Vault's immutable reward token is NVDAB and its bound Protocol matches the deployed Protocol;
-6. the Flap TaxProcessor's market/beneficiary address is the Vault and real taxed trades increase Vault NVDAB balance;
-7. a holder can claim NVDAB, a non-owner cannot claim, and rewards follow an AI transfer;
-8. no signer, salt, RPC key or server secret appears in tracked files or build output.
+4. decoded launch calldata fixes `TinyAI` / `TINYAI`, the pinned metadata CID, `100` / `100` tax bps and `2,592,000` tax-duration seconds;
+5. ordinary new-token transfers to Treasury are untaxed and settle exactly;
+6. the Vault's immutable reward token is NVDAB and its bound Protocol matches the deployed Protocol;
+7. the Flap TaxProcessor's market/beneficiary address is the Vault and real taxed trades increase Vault NVDAB balance;
+8. a holder can claim NVDAB, a non-owner cannot claim, and rewards follow an AI transfer;
+9. no signer, salt, RPC key or server secret appears in tracked files or build output.
 
 Simulation, compilation and address mining do not broadcast a transaction. Every mainnet deployment or token-creation transaction still requires a fresh, transaction-specific authorization.

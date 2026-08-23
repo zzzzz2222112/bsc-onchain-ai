@@ -167,26 +167,27 @@ export default function DocsPage() {
           </section>
 
           <section className={styles.section} id="market">
-            <p className={styles.kicker}>市场与资金流</p><h2>资产挂牌不托管，成交后由卖家提取。</h2>
-            <p>卖家挂牌时仍持有 AI 或组件，只向市场授予转移权限。购买时重新检查余额、归属和授权，失效挂牌无法成交。</p>
+            <p className={styles.kicker}>市场与资金流</p><h2>资产挂牌不托管，成交款直接到达卖家。</h2>
+            <p>卖家挂牌时仍持有 AI 或组件，只向市场授予转移权限。Token Mode 购买时重新检查余额、归属、资产授权和结算代币授权，失效挂牌无法成交。</p>
             <div className={styles.fundFlow}>
               <div><span>SELLER</span><b>Asset + approval</b></div><i aria-hidden="true">→</i>
-              <div className={styles.fundCore}><span>MARKET</span><b>Exact-price settlement</b><small>state first / transfer second</small></div>
+              <div className={styles.fundCore}><span>MARKET</span><b>Exact-token settlement</b><small>payment + asset / atomic</small></div>
               <i aria-hidden="true">→</i><div><span>BUYER</span><b>AI or component</b></div>
-              <div className={styles.owedSeller}><span>OWED</span><b>Seller balance</b></div>
+              <div className={styles.owedSeller}><span>DIRECT</span><b>Seller wallet</b></div>
             </div>
             <div className={styles.marketFacts}>
               <p><b>非托管挂牌</b><span>购买前资产留在卖家钱包。</span></p><p><b>部分成交</b><span>ERC-1155 组件可按数量购买。</span></p>
-              <p><b>Pull payment</b><span>成交款记入卖家余额，再由卖家主动提取。</span></p><p><b>结算规则</b><span>合约按挂牌价格完成结算，不负责撮合或报价。</span></p>
+              <p><b>直接结算</b><span>成交代币从买家原子转入卖家钱包，不经过可提取余额。</span></p><p><b>结算规则</b><span>合约按挂牌价格完成结算，不负责撮合或报价。</span></p>
             </div>
             <p className={styles.protocolNote}>市场提供公开结算路线，不承诺流动性、买家、成交速度或价格上涨。</p>
             <p className={styles.protocolNote}>Token Mode 中，AI 与单个组件的 Mint 价格都永久固定为 500 枚新币，市场协议手续费和对话协议费均为 0；用户只需另外向 BSC 支付交易 Gas。</p>
+            <p className={styles.protocolNote}>新币名称与符号固定为 TinyAI / TINYAI，买入税和卖出税均为 1%，从发币交易起持续 30 天（2,592,000 秒）。官网为 bnbtinyai.org，公开账号为 x.com/Tinyaipro。</p>
             <p className={styles.protocolNote}>Flap 交易税中实际到达 beneficiary 的部分进入 AI 持有者 Vault，一只 AI 对应一个 NVDAB 奖励份额。Flap 平台级扣除发生在 beneficiary 分配之前，因此这里不表示毛交易税全部归持有人。</p>
           </section>
 
           <section className={styles.section} id="contracts">
             <p className={styles.kicker}>CONTRACTS &amp; SOURCE</p><h2>主网地址、公开源码与验证结果，属于同一条证据链。</h2>
-            <p>下面列出当前协议最重要的六个可执行合约。每个地址都链接到 BscScan 的已验证源码，同时链接到独立公开仓库中的对应文件。</p>
+            <p>下面列出已部署 Genesis BNB 版最重要的六个可执行合约。Token Mode 将在新币和新合约完成主网部署、源码验证及相互绑定复核后，单独发布一套地址，二者不会混用。</p>
             <div className={styles.contractTable} role="table" aria-label="TinyAI BSC 主网合约">
               <div className={styles.contractHead} role="row"><span>CONTRACT / ROLE</span><span>MAINNET ADDRESS</span><span>EVIDENCE</span></div>
               {deployedContracts.map(([name, role, address, sourceLabel, sourcePath]) => (

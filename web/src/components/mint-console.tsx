@@ -16,7 +16,7 @@ import {
   type Address,
   type Hash,
 } from "viem";
-import { brainRegistryAbi, componentsAbi, protocolAbi, tokenAbi, type DeploymentConfig } from "@/lib/contracts";
+import { brainRegistryAbi, componentsAbi, protocolAbi, tokenAbi, tokenComponentsMintAbi, tokenProtocolMintAbi, type DeploymentConfig } from "@/lib/contracts";
 import { componentCards } from "@/lib/component-catalog";
 import { explainRpcError } from "@/lib/rpc-error";
 import { canAutoAddNetwork, switchOrAddNetwork } from "@/lib/wallet-network";
@@ -334,14 +334,12 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
     const seed = keccak256(toBytes(`${account || ZERO_ADDRESS}:${mintedName}:${crypto.randomUUID()}`));
     if (!(await ensureTokenAllowance(protocolAddress, meta.mintPrice, `授权 ${paymentSymbol} Mint AI`))) return;
     const receipt = await transact("Mint 一只新 AI", async (wallet, user) => {
-      const simulation = await publicClient.simulateContract({
-        account: user,
-        address: protocolAddress,
-        abi: protocolAbi,
-        functionName: "mintAI",
-        args: [mintedName, seed, autoUpgrade],
-        ...(tokenMode ? {} : { value: meta.mintPrice }),
-      });
+      if (tokenMode) {
+        const simulation = await publicClient.simulateContract({ account: user, address: protocolAddress, abi: tokenProtocolMintAbi, functionName: "mintAI", args: [mintedName, seed, autoUpgrade] });
+        setStage("signing");
+        return wallet.writeContract(simulation.request);
+      }
+      const simulation = await publicClient.simulateContract({ account: user, address: protocolAddress, abi: protocolAbi, functionName: "mintAI", args: [mintedName, seed, autoUpgrade], value: meta.mintPrice });
       setStage("signing");
       return wallet.writeContract(simulation.request);
     });
@@ -362,14 +360,12 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
     const definition = meta.definitions[componentId];
     if (!(await ensureTokenAllowance(componentsAddress, definition.mintPrice, `授权 ${paymentSymbol} Mint 组件`))) return;
     const receipt = await transact(`Mint ${componentCards.find((item) => item.id === componentId)?.name}`, async (wallet, user) => {
-      const simulation = await publicClient.simulateContract({
-        account: user,
-        address: componentsAddress,
-        abi: componentsAbi,
-        functionName: "publicMint",
-        args: [BigInt(componentId), 1n],
-        ...(tokenMode ? {} : { value: definition.mintPrice }),
-      });
+      if (tokenMode) {
+        const simulation = await publicClient.simulateContract({ account: user, address: componentsAddress, abi: tokenComponentsMintAbi, functionName: "publicMint", args: [BigInt(componentId), 1n] });
+        setStage("signing");
+        return wallet.writeContract(simulation.request);
+      }
+      const simulation = await publicClient.simulateContract({ account: user, address: componentsAddress, abi: componentsAbi, functionName: "publicMint", args: [BigInt(componentId), 1n], value: definition.mintPrice });
       setStage("signing");
       return wallet.writeContract(simulation.request);
     });
@@ -397,6 +393,9 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
     </section>
 
     {!deployed && <section className={styles.notice} role="status"><strong>当前环境没有完整协议地址，Mint 已禁用。</strong></section>}
+    {tokenMode && <section className={styles.notice} aria-label="TINYAI 发币参数">
+      <div><strong>TinyAI / TINYAI</strong><p>以 NVDAB 为 Flap 报价资产；买入税 1%，卖出税 1%，从发币交易起持续 30 天。AI 与单个组件均固定为 500 TINYAI。</p></div>
+    </section>}
     {wrongChain && <section className={styles.notice} role="alert">
       <div><strong>钱包网络不匹配</strong><p>钱包当前是 Chain {walletChain}，Mint 使用 {config.chainName}（Chain {config.chainId}）。</p></div>
       <button type="button" onClick={switchNetwork} disabled={busy}>{switchLabel}</button>

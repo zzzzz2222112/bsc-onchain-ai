@@ -297,6 +297,18 @@ export const tokenAbi = [
   { type: "function", name: "approve", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "value", type: "uint256" }], outputs: [{ type: "bool" }] },
 ] as const;
 
+export const tokenProtocolMintAbi = [
+  {
+    type: "function", name: "mintAI", stateMutability: "nonpayable",
+    inputs: [{ name: "name", type: "string" }, { name: "seed", type: "bytes32" }, { name: "autoUpgrade", type: "bool" }],
+    outputs: [{ name: "aiId", type: "uint256" }],
+  },
+] as const;
+
+export const tokenComponentsMintAbi = [
+  { type: "function", name: "publicMint", stateMutability: "nonpayable", inputs: [{ name: "id", type: "uint256" }, { name: "amount", type: "uint64" }], outputs: [] },
+] as const;
+
 const brainOutput = [
   { name: "response", type: "string" }, { name: "confidence", type: "uint16" },
   { name: "topic", type: "uint8" }, { name: "variant", type: "uint8" },
@@ -402,7 +414,6 @@ export const componentsAbi = [
 export const marketAbi = [
   { type: "function", name: "nextListingId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "MARKET_FEE_BPS", stateMutability: "view", inputs: [], outputs: [{ type: "uint16" }] },
-  { type: "function", name: "paymentToken", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
   { type: "function", name: "owed", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ type: "uint256" }] },
   {
     type: "function", name: "listings", stateMutability: "view", inputs: [{ name: "listingId", type: "uint256" }],
@@ -417,6 +428,32 @@ export const marketAbi = [
   { type: "function", name: "buy", stateMutability: "payable", inputs: [{ name: "listingId", type: "uint256" }, { name: "amount", type: "uint96" }], outputs: [] },
   { type: "function", name: "cancel", stateMutability: "nonpayable", inputs: [{ name: "listingId", type: "uint256" }], outputs: [] },
   { type: "function", name: "withdraw", stateMutability: "nonpayable", inputs: [], outputs: [] },
+  {
+    type: "event", name: "Listed", inputs: [
+      { name: "listingId", type: "uint256", indexed: true }, { name: "seller", type: "address", indexed: true },
+      { name: "asset", type: "address", indexed: true }, { name: "tokenId", type: "uint256", indexed: false },
+      { name: "amount", type: "uint96", indexed: false }, { name: "unitPrice", type: "uint128", indexed: false },
+      { name: "assetKind", type: "uint8", indexed: false },
+    ],
+  },
+] as const;
+
+export const tokenMarketAbi = [
+  { type: "function", name: "nextListingId", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "MARKET_FEE_BPS", stateMutability: "view", inputs: [], outputs: [{ type: "uint16" }] },
+  { type: "function", name: "paymentToken", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
+  {
+    type: "function", name: "listings", stateMutability: "view", inputs: [{ name: "listingId", type: "uint256" }],
+    outputs: [
+      { name: "seller", type: "address" }, { name: "asset", type: "address" },
+      { name: "tokenId", type: "uint256" }, { name: "unitPrice", type: "uint128" },
+      { name: "amount", type: "uint96" }, { name: "assetKind", type: "uint8" },
+    ],
+  },
+  { type: "function", name: "listAI", stateMutability: "nonpayable", inputs: [{ name: "asset", type: "address" }, { name: "tokenId", type: "uint256" }, { name: "price", type: "uint128" }], outputs: [{ name: "listingId", type: "uint256" }] },
+  { type: "function", name: "listComponents", stateMutability: "nonpayable", inputs: [{ name: "asset", type: "address" }, { name: "tokenId", type: "uint256" }, { name: "amount", type: "uint96" }, { name: "unitPrice", type: "uint128" }], outputs: [{ name: "listingId", type: "uint256" }] },
+  { type: "function", name: "buy", stateMutability: "nonpayable", inputs: [{ name: "listingId", type: "uint256" }, { name: "amount", type: "uint96" }], outputs: [] },
+  { type: "function", name: "cancel", stateMutability: "nonpayable", inputs: [{ name: "listingId", type: "uint256" }], outputs: [] },
   {
     type: "event", name: "Listed", inputs: [
       { name: "listingId", type: "uint256", indexed: true }, { name: "seller", type: "address", indexed: true },

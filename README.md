@@ -127,11 +127,11 @@ Genesis components are ERC-1155 assets with fixed meanings and lifetime caps. Fu
 
 A component cannot be consumed when its effect would be wasted. Burning does not reopen historical issuance capacity.
 
-## Native market settlement
+## Market settlement
 
 `TinyAIMarket` supports the protocol's ERC-721 AI assets and ERC-1155 components.
 
-Listings are non-custodial: the asset stays in the seller's wallet until purchase. The market checks ownership, balance and approval again at settlement, updates accounting before external transfers, supports partial component fills and credits proceeds to a pull-payment balance.
+Listings are non-custodial: the asset stays in the seller's wallet until purchase. The market checks ownership, balance and approval again at settlement, updates listing state before external transfers and supports partial component fills. In Token Mode, the exact ERC-20 purchase amount moves directly from buyer to seller in the same transaction. The separate Genesis BNB market retains its pull-payment proceeds balance.
 
 The market has no owner and no fee-setting path. It provides deterministic settlement, not guaranteed liquidity.
 
@@ -154,6 +154,10 @@ Persistent conversation calls are non-payable. The AI owner pays normal network 
 
 The repository also contains the audited **Flap Token Mode release candidate**. It preserves the same supply, ownership, conversation and market invariants, but replaces native-BNB primary mint settlement with an exact ERC-20 payment:
 
+- token name and symbol: `TinyAI` / `TINYAI`;
+- official website and X account: `https://bnbtinyai.org` / `https://x.com/Tinyaipro`;
+- immutable launch metadata CID: `QmcFiqZScoop6uDjpPzsxTuSkcEZGLs13iZjSHqFqhY2Qy` (avatar CID `Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq`);
+- Flap buy tax and sell tax: `1%` each for `30 days` (`2,592,000` seconds) from launch;
 - AI mint price: `500` newly created Flap tokens;
 - component mint price: `500` newly created Flap tokens per unit;
 - quote and AI-holder reward asset: BSC `NVDAB`;
@@ -161,7 +165,7 @@ The repository also contains the audited **Flap Token Mode release candidate**. 
 - market protocol fee and conversation protocol fee: `0`; and
 - final Flap token creation and the Token Mode production deployment are **not yet live**.
 
-The complete prelaunch specification and safe deployment order are documented in [ERC-20 Token Mode status](docs/TOKEN_MODE.md). Until its final deployment record exists, the BNB Genesis addresses below remain the canonical production stack.
+The complete prelaunch specification and safe deployment order are documented in [ERC-20 Token Mode status](docs/TOKEN_MODE.md). Until its final deployment record exists, the BNB Genesis addresses below remain the canonical production stack. The website avatar is the exact public asset at [`web/public/tinyai-avatar.png`](web/public/tinyai-avatar.png).
 
 ## Trust and verification boundary
 
@@ -203,10 +207,27 @@ web/                      replaceable reference client
 
 The reference client is intentionally not part of the trust boundary. Any compatible application or contract can integrate the same public interfaces.
 
+## BNB Smart Chain deployments
+
+The table below records the separately deployed **Genesis BNB edition**. It remains independently verifiable and must not be mixed with Token Mode addresses. The principal executable contracts were source-verified on BscScan with Solidity `0.8.30`, 20,000 optimizer runs, `viaIR` enabled and the Cancun EVM target.
+
+| Contract | Genesis mainnet address | Public source |
+| --- | --- | --- |
+| AI identity and state | [`0x5044...9c93`](https://bscscan.com/address/0x5044F577571dcA7cB7A0775aDcFa66E02bd49c93#code) | [`TinyAIProtocol.sol`](contracts/src/protocol/TinyAIProtocol.sol) |
+| Components | [`0x9361...9bF1`](https://bscscan.com/address/0x936161FD89c4272f2B034f5414e6D9C7C9CB9bF1#code) | [`TinyAIComponents.sol`](contracts/src/protocol/TinyAIComponents.sol) |
+| Native market | [`0x3dCB...e9b7`](https://bscscan.com/address/0x3dCBDB84bA220Cd9cA6E420b2bCe3D3610a1e9b7#code) | [`TinyAIMarket.sol`](contracts/src/protocol/TinyAIMarket.sol) |
+| Brain registry | [`0x29Ee...1fA1`](https://bscscan.com/address/0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1#code) | [`TinyAIBrainRegistry.sol`](contracts/src/protocol/TinyAIBrainRegistry.sol) |
+| Brain Engine V2 | [`0xE45F...DAb0`](https://bscscan.com/address/0xE45F1221EBaDb925062E1a706b16277943e7DAb0#code) | [`TinyAIBrainEngineV2.sol`](contracts/src/protocol/TinyAIBrainEngineV2.sol) |
+| Neural Decoder V2 | [`0xe4D2...C7eF`](https://bscscan.com/address/0xe4D2944f722F2c8d685F3934FB2310321281C7eF#code) | [`TinyAINeuralDecoderV2.sol`](contracts/src/protocol/TinyAINeuralDecoderV2.sol) |
+
+The [formal 45-transaction genesis record](contracts/deployments/bsc-mainnet-genesis.json), [Brain V2 release record](contracts/deployments/bsc-mainnet-brain-v2.json) and [source-verification registry](contracts/deployments/bsc-mainnet-source-verification.json) preserve transaction hashes, blocks, compiler settings and runtime code hashes. Token Mode will receive a separate production table only after its final token and contracts exist on BSC mainnet and pass reciprocal binding checks.
+
 ## Verification
 
 ```bash
 cd contracts
+forge install foundry-rs/forge-std@v1.16.2 --no-git
+forge install OpenZeppelin/openzeppelin-contracts@v5.7.0 --no-git
 forge test
 forge fmt --check
 ```
@@ -220,9 +241,10 @@ pnpm build
 
 Canonical public deployment evidence is stored under `contracts/deployments/`. Deployment artifacts are evidence, while the contracts and their live state remain the source of truth.
 
+`scripts/prepare-source-verification.mjs` reconstructs exact Standard JSON compiler inputs from retained Foundry artifacts, recompiles them with the pinned `solc` binary and refuses to continue unless the resulting creation bytecode is a byte-for-byte prefix of the deployed transaction input. Explorer API keys, RPC credentials, signers and broadcast files remain outside this repository.
+
 ## Technical documents
 
-- [Complete technical handoff](HANDOFF.md)
 - [Protocol specification](docs/PROTOCOL.md)
 - [Execution architecture](docs/ARCHITECTURE.md)
 - [Security and trust model](docs/SECURITY.md)
@@ -243,3 +265,7 @@ Contributions support security review, reproducible model research, public infra
 ## License
 
 MIT. Contract source, model tooling and generated artifacts in this repository are released under the same license.
+
+## Maintainer
+
+[`zzzzz2222112`](https://github.com/zzzzz2222112)
