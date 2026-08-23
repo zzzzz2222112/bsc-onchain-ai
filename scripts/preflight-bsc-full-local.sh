@@ -58,7 +58,7 @@ fi
 cd "$PROJECT_ROOT/contracts"
 export CLI_SIGNER=true
 export PROTOCOL_OWNER="$DEPLOYER"
-export COMPONENT_BASE_URI="${COMPONENT_BASE_URI:-ipfs://tinyai/{id}.json}"
+export COMPONENT_BASE_URI="${COMPONENT_BASE_URI:-ipfs://bafybeiduevofpggxdaxngsjfzyi4j5uvejtcwkffkh3hgoes6iuomptojm/{id}.json}"
 forge script script/DeployFullProtocol.s.sol:DeployFullProtocol \
   --rpc-url "$RPC_URL" \
   --sender "$DEPLOYER" \

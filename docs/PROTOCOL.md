@@ -31,7 +31,7 @@ A brain is an `IBrainEngine` implementation published under a sequential registr
 
 ### 3.3 Component
 
-A component is an ERC-1155 balance with an immutable effect definition and lifetime supply cap. Fusion burns the balance and changes AI state.
+A component is an ERC-1155 balance with an immutable effect definition and lifetime supply cap. Fusion burns the balance and changes AI state. The genesis metadata base URI is `ipfs://bafybeiduevofpggxdaxngsjfzyi4j5uvejtcwkffkh3hgoes6iuomptojm/{id}.json`.
 
 ### 3.4 Listing
 

@@ -1,0 +1,10 @@
+{
+  "name": "TinyAI Expression Core",
+  "description": "A consumable on-chain TinyAI component that unlocks one additional response-expression level, up to the protocol limit.",
+  "image": "ipfs://Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq",
+  "attributes": [
+    { "trait_type": "Effect", "value": "Expression" },
+    { "trait_type": "Power", "value": 1 },
+    { "trait_type": "Genesis Cap", "value": 10000 }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "TinyAI Humor Gene",
+  "description": "A consumable on-chain TinyAI component that permanently increases humor by five points.",
+  "image": "ipfs://Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq",
+  "attributes": [
+    { "trait_type": "Effect", "value": "Humor" },
+    { "trait_type": "Power", "value": 5 },
+    { "trait_type": "Genesis Cap", "value": 15000 }
+  ]
+}

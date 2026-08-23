@@ -157,6 +157,7 @@ The repository also contains the audited **Flap Token Mode release candidate**. 
 - token name and symbol: `TinyAI` / `TINYAI`;
 - official website and X account: `https://bnbtinyai.org` / `https://x.com/Tinyaipro`;
 - immutable launch metadata CID: `QmcFiqZScoop6uDjpPzsxTuSkcEZGLs13iZjSHqFqhY2Qy` (avatar CID `Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq`);
+- genesis component metadata URI: `ipfs://bafybeiduevofpggxdaxngsjfzyi4j5uvejtcwkffkh3hgoes6iuomptojm/{id}.json`;
 - Flap buy tax and sell tax: `1%` each for `30 days` (`2,592,000` seconds) from launch;
 - AI mint price: `500` newly created Flap tokens;
 - component mint price: `500` newly created Flap tokens per unit;

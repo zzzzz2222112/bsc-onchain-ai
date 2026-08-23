@@ -230,7 +230,7 @@ Components are ERC-1155 assets with immutable on-chain effect definitions.
 | Caution Gene | 15,000 | Caution +5 |
 | Expression Core | 10,000 | Additional deterministic variant +1 |
 
-The catalogue is sealed at a combined lifetime cap of 100,000. Public minting requires the fixed unit price and has no administrative mint path.
+The catalogue is sealed at a combined lifetime cap of 100,000. Public minting requires the fixed unit price and has no administrative mint path. The six genesis definitions are published at the content-addressed base URI `ipfs://bafybeiduevofpggxdaxngsjfzyi4j5uvejtcwkffkh3hgoes6iuomptojm/{id}.json`; changing a later presentation URI cannot change the sealed on-chain effect or lifetime cap.
 
 Fusion requires AI ownership and a non-wasted effect. The protocol burns the component before applying the state change. Burned supply does not reopen historical issuance capacity.
 

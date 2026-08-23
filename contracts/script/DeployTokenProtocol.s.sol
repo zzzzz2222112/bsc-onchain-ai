@@ -17,6 +17,8 @@ contract DeployTokenProtocol is Script {
     uint256 private constant BSC_CHAIN_ID = 56;
     address private constant NVDAB = 0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436;
     uint256 private constant TOKEN_MINT_PRICE = 500 ether;
+    string private constant GENESIS_COMPONENT_URI =
+        "ipfs://bafybeiduevofpggxdaxngsjfzyi4j5uvejtcwkffkh3hgoes6iuomptojm/{id}.json";
 
     uint256 private constant MEMORY_CELL = 1;
     uint256 private constant CURIOSITY_GENE = 2;
@@ -74,7 +76,7 @@ contract DeployTokenProtocol is Script {
         require(componentMintPrice <= type(uint128).max, "COMPONENT_MINT_PRICE_OVERFLOW");
         config.componentMintPrice = uint128(componentMintPrice);
         config.chatPrice = vm.envOr("CHAT_PRICE", uint256(0));
-        config.componentUri = vm.envOr("COMPONENT_BASE_URI", string("ipfs://tinyai-token/{id}.json"));
+        config.componentUri = vm.envOr("COMPONENT_BASE_URI", GENESIS_COMPONENT_URI);
     }
 
     function _validateConfig(DeploymentConfig memory config) private view {
@@ -91,6 +93,10 @@ contract DeployTokenProtocol is Script {
         require(config.aiMintPrice == TOKEN_MINT_PRICE, "AI_MINT_PRICE_MUST_BE_500_TOKENS");
         require(config.componentMintPrice == TOKEN_MINT_PRICE, "COMPONENT_MINT_PRICE_MUST_BE_500_TOKENS");
         require(config.chatPrice == 0, "CHAT_MUST_REMAIN_FREE");
+        require(
+            keccak256(bytes(config.componentUri)) == keccak256(bytes(GENESIS_COMPONENT_URI)),
+            "GENESIS_COMPONENT_URI_MISMATCH"
+        );
 
         uint32 recommendedVersion = config.registry.recommendedVersion();
         require(recommendedVersion != 0 && config.registry.upgradeEnabled(recommendedVersion), "INVALID_RECOMMENDED_BRAIN");

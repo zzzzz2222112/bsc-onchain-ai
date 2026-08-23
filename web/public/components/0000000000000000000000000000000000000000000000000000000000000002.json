@@ -1,0 +1,10 @@
+{
+  "name": "TinyAI Curiosity Gene",
+  "description": "A consumable on-chain TinyAI component that permanently increases curiosity by five points.",
+  "image": "ipfs://Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq",
+  "attributes": [
+    { "trait_type": "Effect", "value": "Curiosity" },
+    { "trait_type": "Power", "value": 5 },
+    { "trait_type": "Genesis Cap", "value": 15000 }
+  ]
+}

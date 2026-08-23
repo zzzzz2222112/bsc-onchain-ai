@@ -1,0 +1,10 @@
+{
+  "name": "TinyAI Memory Cell",
+  "description": "A consumable on-chain TinyAI component that permanently adds one queryable memory slot, up to the protocol limit.",
+  "image": "ipfs://Qmc1LroY5RzZCPzkmQK9oKDWWWaLHouUtbhhHEdahxX6Aq",
+  "attributes": [
+    { "trait_type": "Effect", "value": "Memory" },
+    { "trait_type": "Power", "value": 1 },
+    { "trait_type": "Genesis Cap", "value": 30000 }
+  ]
+}
