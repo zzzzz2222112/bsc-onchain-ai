@@ -115,6 +115,11 @@ NEXT_PUBLIC_COMPONENTS_ADDRESS=0xTokenComponents
 NEXT_PUBLIC_MARKET_ADDRESS=0xTokenMarket
 ```
 
+`web/scripts/preflight-flap-token.mjs` has two explicit stages. Before the Holder Vault exists it reports
+`address-reservation-only` and checks only the predicted CA, live dependencies and salt state. After the Vault is
+deployed, supply `HOLDER_VAULT` and require `exact-final-launch-parameters`; only that second result simulates the
+production beneficiary together with the final metadata, tax, quote-asset and token-version tuple.
+
 `NEXT_PUBLIC_*` values are intentionally visible. Private RPC keys, salts before launch and signer material must never use that prefix or enter Git.
 
 ## Verification gate
@@ -135,7 +140,7 @@ pnpm build
 The mainnet preflight must additionally prove:
 
 1. the predicted token address is empty and ends in `7777`;
-2. the live Portal's simulated return equals the predicted address;
+2. after the Holder Vault is deployed, the exact production tuple uses that Vault as beneficiary and the live Portal's simulated return equals the predicted address;
 3. `NVDAB` is still allowed as a quote token;
 4. decoded launch calldata fixes `TinyAI` / `TINYAI`, the pinned metadata CID, `100` / `100` tax bps and `2,592,000` tax-duration seconds;
 5. ordinary new-token transfers to Treasury are untaxed and settle exactly;
