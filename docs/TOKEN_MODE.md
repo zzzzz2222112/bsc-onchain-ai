@@ -2,9 +2,22 @@
 
 ## Status
 
-This repository contains a prelaunch Token Mode for a brand-new Flap Tax Token V3. The future token address is mined locally with CREATE2 and may be bound to the TinyAI contracts before the token is created. The Token Mode stack and the new token are **not deployed to BSC mainnet yet**, so this document contains no canonical production addresses.
+The Token Mode Vault, Components, Protocol and Market were predeployed and reciprocally bound on BSC mainnet on `2026-08-23`. The future Flap Tax Token V3 address was mined locally with CREATE2 and is already pinned immutably by those contracts, but the token itself is **not created yet**. Therefore the stack is publicly verifiable but Token Mode minting, settlement and holder rewards are not live.
 
 The live BNB-settled TinyAI deployment remains a separate edition. Do not combine its addresses with Token Mode.
+
+### Canonical mainnet predeployment
+
+| Role | Address | State |
+| --- | --- | --- |
+| Future TinyAI / TINYAI token | [`0x30e892840E5E37083c986012934Bd845f8157777`](https://bscscan.com/address/0x30e892840E5E37083c986012934Bd845f8157777) | Predicted and prebound; no runtime code before final launch |
+| TinyAIHolderVault | [`0x042cdC4091953AEE832365097f191d40F74d39e2`](https://bscscan.com/address/0x042cdC4091953AEE832365097f191d40F74d39e2) | Deployed; immutable NVDAB reward token; bound to Token Protocol |
+| TinyAITokenComponents | [`0x5F4159c1766CFC5De595e0D5cB805F880Af2b844`](https://bscscan.com/address/0x5F4159c1766CFC5De595e0D5cB805F880Af2b844) | Deployed; payment token prebound; catalog sealed |
+| TinyAITokenProtocol | [`0x08920f8243F7921A0f225AD171c81B51ee51e9C0`](https://bscscan.com/address/0x08920f8243F7921A0f225AD171c81B51ee51e9C0) | Deployed; payment token, Components, Vault and Brain Registry bound |
+| TinyAITokenMarket | [`0x4e39FD3b62303bF9377Fa38566edd6847AAeb803`](https://bscscan.com/address/0x4e39FD3b62303bF9377Fa38566edd6847AAeb803) | Deployed; zero protocol fee; payment token prebound |
+| Brain Registry V2 | [`0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1`](https://bscscan.com/address/0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1) | Existing live dependency; recommended version 2 |
+
+The 13 successful transactions used deployer nonces `117` through `129`, blocks `117639782` through `117639985`, and `0.00110061725 BNB` of actual gas. The complete receipt-level record is [`contracts/deployments/bsc-mainnet-token-mode-prelaunch.json`](../contracts/deployments/bsc-mainnet-token-mode-prelaunch.json). At preflight block `117640407`, the future token address was still empty and the exact final `newTokenV6` tuple simulated to that same address.
 
 ## Fixed economic boundary
 
@@ -91,8 +104,8 @@ FLAP_REQUIRE_SALT_LOCK=false
 FLAP_BUY_TAX_BPS=100
 FLAP_SELL_TAX_BPS=100
 FLAP_TAX_DURATION=2592000
-PAYMENT_TOKEN=0xPredicted7777Address
-HOLDER_VAULT=0xDeployedHolderVault
+PAYMENT_TOKEN=0x30e892840E5E37083c986012934Bd845f8157777
+HOLDER_VAULT=0x042cdC4091953AEE832365097f191d40F74d39e2
 AI_MINT_PRICE=500000000000000000000
 COMPONENT_MINT_PRICE=500000000000000000000
 CHAT_PRICE=0
@@ -100,19 +113,21 @@ FLAP_INITIAL_QUOTE_AMOUNT=0
 FLAP_CALL_VALUE=1000000000
 ```
 
-Public frontend configuration after verified deployment:
+Public frontend configuration for the predeployed stack. The client must keep mint and settlement actions disabled while the configured payment-token address has no runtime code:
 
 ```dotenv
 NEXT_PUBLIC_SETTLEMENT_MODE=token
-NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS=0xCreatedFlapToken
+NEXT_PUBLIC_PAYMENT_TOKEN_ADDRESS=0x30e892840E5E37083c986012934Bd845f8157777
 NEXT_PUBLIC_PAYMENT_TOKEN_SYMBOL=TINYAI
 NEXT_PUBLIC_PAYMENT_TOKEN_DECIMALS=18
-NEXT_PUBLIC_HOLDER_VAULT_ADDRESS=0xTinyAIHolderVault
+NEXT_PUBLIC_HOLDER_VAULT_ADDRESS=0x042cdC4091953AEE832365097f191d40F74d39e2
 NEXT_PUBLIC_REWARD_ASSET_SYMBOL=NVDAB
 NEXT_PUBLIC_REWARD_ASSET_DECIMALS=18
-NEXT_PUBLIC_PROTOCOL_ADDRESS=0xTokenProtocol
-NEXT_PUBLIC_COMPONENTS_ADDRESS=0xTokenComponents
-NEXT_PUBLIC_MARKET_ADDRESS=0xTokenMarket
+NEXT_PUBLIC_PROTOCOL_ADDRESS=0x08920f8243F7921A0f225AD171c81B51ee51e9C0
+NEXT_PUBLIC_PROTOCOL_FROM_BLOCK=117639940
+NEXT_PUBLIC_COMPONENTS_ADDRESS=0x5F4159c1766CFC5De595e0D5cB805F880Af2b844
+NEXT_PUBLIC_MARKET_ADDRESS=0x4e39FD3b62303bF9377Fa38566edd6847AAeb803
+NEXT_PUBLIC_BRAIN_REGISTRY_ADDRESS=0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1
 ```
 
 `web/scripts/preflight-flap-token.mjs` has two explicit stages. Before the Holder Vault exists it reports

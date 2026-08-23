@@ -164,9 +164,10 @@ The repository also contains the audited **Flap Token Mode release candidate**. 
 - quote and AI-holder reward asset: BSC `NVDAB`;
 - one owned AI represents one equal NVDAB reward share;
 - market protocol fee and conversation protocol fee: `0`; and
-- final Flap token creation and the Token Mode production deployment are **not yet live**.
+- the Token Mode Vault, Components, Protocol and Market were predeployed and reciprocally bound on BSC mainnet on `2026-08-23`; and
+- the final Flap token is **not created yet**, so Token Mode minting, settlement and tax rewards are not live until the final launch transaction and post-launch checks complete.
 
-The complete prelaunch specification and safe deployment order are documented in [ERC-20 Token Mode status](docs/TOKEN_MODE.md). Until its final deployment record exists, the BNB Genesis addresses below remain the canonical production stack. The website avatar is the exact public asset at [`web/public/tinyai-avatar.png`](web/public/tinyai-avatar.png).
+The complete prelaunch specification and safe deployment order are documented in [ERC-20 Token Mode status](docs/TOKEN_MODE.md). The [formal Token Mode predeployment record](contracts/deployments/bsc-mainnet-token-mode-prelaunch.json) preserves all 13 transaction hashes, blocks, immutable bindings and runtime code hashes. Until the final token-creation record and post-launch verification exist, the BNB Genesis addresses below remain the canonical live production stack. The website avatar is the exact public asset at [`web/public/tinyai-avatar.png`](web/public/tinyai-avatar.png).
 
 ## Trust and verification boundary
 
@@ -221,7 +222,7 @@ The table below records the separately deployed **Genesis BNB edition**. It rema
 | Brain Engine V2 | [`0xE45F...DAb0`](https://bscscan.com/address/0xE45F1221EBaDb925062E1a706b16277943e7DAb0#code) | [`TinyAIBrainEngineV2.sol`](contracts/src/protocol/TinyAIBrainEngineV2.sol) |
 | Neural Decoder V2 | [`0xe4D2...C7eF`](https://bscscan.com/address/0xe4D2944f722F2c8d685F3934FB2310321281C7eF#code) | [`TinyAINeuralDecoderV2.sol`](contracts/src/protocol/TinyAINeuralDecoderV2.sol) |
 
-The [formal 45-transaction genesis record](contracts/deployments/bsc-mainnet-genesis.json), [Brain V2 release record](contracts/deployments/bsc-mainnet-brain-v2.json) and [source-verification registry](contracts/deployments/bsc-mainnet-source-verification.json) preserve transaction hashes, blocks, compiler settings and runtime code hashes. Token Mode will receive a separate production table only after its final token and contracts exist on BSC mainnet and pass reciprocal binding checks.
+The [formal 45-transaction genesis record](contracts/deployments/bsc-mainnet-genesis.json), [Brain V2 release record](contracts/deployments/bsc-mainnet-brain-v2.json), [source-verification registry](contracts/deployments/bsc-mainnet-source-verification.json) and [Token Mode predeployment record](contracts/deployments/bsc-mainnet-token-mode-prelaunch.json) preserve transaction hashes, blocks, compiler settings, bindings and runtime code hashes. Token Mode is visibly predeployed, but it will receive a production table only after the final token exists at the prebound address and post-launch verification completes.
 
 ## Verification
 

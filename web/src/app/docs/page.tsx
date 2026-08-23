@@ -41,6 +41,14 @@ const deployedContracts = [
   ["TinyAINeuralDecoderV2", "V2 的 int8 自回归神经解码器", "0xe4D2944f722F2c8d685F3934FB2310321281C7eF", "TinyAINeuralDecoderV2.sol", "protocol/TinyAINeuralDecoderV2.sol"],
 ];
 
+const tokenModeContracts = [
+  ["Future TinyAI / TINYAI", "固定 CA；最终发币前无运行时代码", "0x30e892840E5E37083c986012934Bd845f8157777", "TOKEN PENDING"],
+  ["TinyAIHolderVault", "NVDAB 持有人奖励累加器", "0x042cdC4091953AEE832365097f191d40F74d39e2", "PREDEPLOYED"],
+  ["TinyAITokenComponents", "500 TINYAI Mint 的 ERC-1155 组件", "0x5F4159c1766CFC5De595e0D5cB805F880Af2b844", "PREDEPLOYED"],
+  ["TinyAITokenProtocol", "Token Mode AI 身份、状态与链上对话", "0x08920f8243F7921A0f225AD171c81B51ee51e9C0", "PREDEPLOYED"],
+  ["TinyAITokenMarket", "零协议费的代币固定价市场", "0x4e39FD3b62303bF9377Fa38566edd6847AAeb803", "PREDEPLOYED"],
+];
+
 export default function DocsPage() {
   return (
     <main className={styles.page}>
@@ -187,7 +195,7 @@ export default function DocsPage() {
 
           <section className={styles.section} id="contracts">
             <p className={styles.kicker}>CONTRACTS &amp; SOURCE</p><h2>主网地址、公开源码与验证结果，属于同一条证据链。</h2>
-            <p>下面列出已部署 Genesis BNB 版最重要的六个可执行合约。Token Mode 将在新币和新合约完成主网部署、源码验证及相互绑定复核后，单独发布一套地址，二者不会混用。</p>
+            <p>Genesis BNB 版是当前可用的独立部署。Token Mode 的四个协议合约已经在 BSC 主网完成预部署与相互绑定，但固定的 TINYAI 地址尚无代币代码，因此 Mint、市场结算和持有人奖励暂未开启；两套地址不会混用。</p>
             <div className={styles.contractTable} role="table" aria-label="TinyAI BSC 主网合约">
               <div className={styles.contractHead} role="row"><span>CONTRACT / ROLE</span><span>MAINNET ADDRESS</span><span>EVIDENCE</span></div>
               {deployedContracts.map(([name, role, address, sourceLabel, sourcePath]) => (
@@ -201,10 +209,25 @@ export default function DocsPage() {
                 </div>
               ))}
             </div>
+            <p className={styles.protocolNote}><b>TOKEN MODE / PRELAUNCH：</b>预部署交易位于区块 117639782-117639985。未来代币 CA 已被四个协议合约固定；最终发币和链上复核完成前，这里只展示证据，不把它描述为已上线。</p>
+            <div className={styles.contractTable} role="table" aria-label="TinyAI Token Mode BSC 主网预部署合约">
+              <div className={styles.contractHead} role="row"><span>CONTRACT / ROLE</span><span>MAINNET ADDRESS</span><span>STATE</span></div>
+              {tokenModeContracts.map(([name, role, address, state]) => (
+                <div className={styles.contractRow} role="row" key={address}>
+                  <div><b>{name}</b><span>{role}</span></div>
+                  <code>{address}</code>
+                  <div className={styles.contractLinks}>
+                    <a href={`https://bscscan.com/address/${address}`} target="_blank" rel="noreferrer">BscScan ↗</a>
+                    <span>{state}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
             <div className={styles.evidenceLinks}>
               <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-genesis.json" target="_blank" rel="noreferrer"><span>GENESIS</span><b>45 笔正式部署记录 ↗</b></a>
               <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-brain-v2.json" target="_blank" rel="noreferrer"><span>BRAIN V2</span><b>升级与注册记录 ↗</b></a>
               <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-source-verification.json" target="_blank" rel="noreferrer"><span>VERIFICATION</span><b>源码验证清单 ↗</b></a>
+              <a href="https://github.com/zzzzz2222112/bsc-onchain-ai/blob/main/contracts/deployments/bsc-mainnet-token-mode-prelaunch.json" target="_blank" rel="noreferrer"><span>TOKEN MODE</span><b>13 笔预部署记录 ↗</b></a>
             </div>
             <p className={styles.protocolNote}>模型和词库使用 STOP 前缀的运行时字节码保存。它们不是普通 Solidity 合约，因此用冻结产物承诺和 runtime code hash 验证，不伪装成“已验证 Solidity”。</p>
           </section>

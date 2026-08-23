@@ -1,0 +1,100 @@
+{
+  "status": "protocol-predeployed-token-pending",
+  "chainId": 56,
+  "network": "BSC mainnet",
+  "deployedAt": "2026-08-23",
+  "sourceCommitBeforeDeployment": "2e0eb2495d082e41144122590582b1a281c19f07",
+  "deployer": "0x399e137870fc5384256F9d4D1b9CDAec169Cb829",
+  "treasury": "0xE95680debA275AEF8BD4b0bbeD1a5248C717503a",
+  "predictedPaymentToken": {
+    "name": "TinyAI",
+    "symbol": "TINYAI",
+    "address": "0x30e892840E5E37083c986012934Bd845f8157777",
+    "runtimeCodePresentAfterPredeployment": false,
+    "created": false
+  },
+  "immutableDependencies": {
+    "quoteAndRewardTokenNVDAB": "0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436",
+    "brainRegistry": "0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1",
+    "recommendedBrainVersion": 2
+  },
+  "contracts": {
+    "holderVault": {
+      "address": "0x042cdC4091953AEE832365097f191d40F74d39e2",
+      "runtimeBytes": 5459,
+      "runtimeCodeHash": "0xb1bab3ed5f6652d8d17a775777dc67c8f0bbe5c5c85698fcb9d63d72501cda7b",
+      "rewardToken": "0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436",
+      "boundProtocol": "0x08920f8243F7921A0f225AD171c81B51ee51e9C0"
+    },
+    "components": {
+      "address": "0x5F4159c1766CFC5De595e0D5cB805F880Af2b844",
+      "runtimeBytes": 12461,
+      "runtimeCodeHash": "0xc38c6fef7328541f12c1e6aad9ea25fc5b90928261376c55196c8b54ec6c24a1",
+      "paymentToken": "0x30e892840E5E37083c986012934Bd845f8157777",
+      "boundProtocol": "0x08920f8243F7921A0f225AD171c81B51ee51e9C0",
+      "catalogSealed": true,
+      "metadataURI": "ipfs://bafybeiduevofpggxdaxngsjfzyi4j5uvejtcwkffkh3hgoes6iuomptojm/{id}.json"
+    },
+    "protocol": {
+      "address": "0x08920f8243F7921A0f225AD171c81B51ee51e9C0",
+      "runtimeBytes": 23779,
+      "runtimeCodeHash": "0x1ed8194282049d2b3e0280b376e423a8b0087ab4569b32800e7690806a9b537d",
+      "paymentToken": "0x30e892840E5E37083c986012934Bd845f8157777",
+      "components": "0x5F4159c1766CFC5De595e0D5cB805F880Af2b844",
+      "holderVault": "0x042cdC4091953AEE832365097f191d40F74d39e2",
+      "brainRegistry": "0x29EefCC07eA38535A16fe4fB9c9469d4634C1fA1"
+    },
+    "market": {
+      "address": "0x4e39FD3b62303bF9377Fa38566edd6847AAeb803",
+      "runtimeBytes": 6534,
+      "runtimeCodeHash": "0x94f3a36eeae0eff7fcc8f9b1ebea4bd283c0a27c0cf4395463f520a381631a29",
+      "paymentToken": "0x30e892840E5E37083c986012934Bd845f8157777",
+      "aiCollection": "0x08920f8243F7921A0f225AD171c81B51ee51e9C0",
+      "componentCollection": "0x5F4159c1766CFC5De595e0D5cB805F880Af2b844",
+      "marketFeeBps": 0
+    }
+  },
+  "fixedParameters": {
+    "aiMaximumSupply": 10000,
+    "componentLifetimeSupply": 100000,
+    "aiMintPriceWei": "500000000000000000000",
+    "componentMintPriceWei": "500000000000000000000",
+    "conversationFeeWei": "0",
+    "marketFeeBps": 0,
+    "buyTaxBps": 100,
+    "sellTaxBps": 100,
+    "taxDurationSeconds": 2592000,
+    "initialQuoteAmountWei": "0",
+    "tokenMetadataCID": "QmcFiqZScoop6uDjpPzsxTuSkcEZGLs13iZjSHqFqhY2Qy"
+  },
+  "transactions": [
+    { "nonce": 117, "hash": "0xa2811b69a991dc3cf50c0a2ef63881c7e00f395fa88b095a21f8c56256f5c253", "blockNumber": 117639782, "action": "deploy TinyAIHolderVault", "gasUsed": 1279757, "effectiveGasPriceWei": 50000000, "status": 1 },
+    { "nonce": 118, "hash": "0x05a645290dc345524290a5361711551b76d79af7db6e83a11dae48dc50c9dbd6", "blockNumber": 117639934, "action": "deploy TinyAITokenComponents", "gasUsed": 2905840, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 119, "hash": "0x7e74a67f4073bd48f669100210260f634e6425e89b6c4e9d502c6d1c5cca077c", "blockNumber": 117639940, "action": "deploy TinyAITokenProtocol", "gasUsed": 5317455, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 120, "hash": "0x10772fa195dfb95551b80cc68f8ab0f0d5db0034efe40d4567570b1ddab8d96b", "blockNumber": 117639943, "action": "bind Holder Vault to Token Protocol", "gasUsed": 49724, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 121, "hash": "0xf5628ab552a68a60773f71e286124887738dbadcf2f08c1b969fb5d0fa8e763f", "blockNumber": 117639948, "action": "bind Components to Token Protocol", "gasUsed": 49839, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 122, "hash": "0x220f28d218e0b1692e71db1ce67f3a2a1b69541e7b0a90e85c7179d378e38392", "blockNumber": 117639953, "action": "deploy TinyAITokenMarket", "gasUsed": 1506037, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 123, "hash": "0x94dcccae5dd9fce0687abc4f5de7948ffe3f5e5abdf10b51cdbf7ee09d953b5a", "blockNumber": 117639959, "action": "define Memory Cell component", "gasUsed": 81344, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 124, "hash": "0xe3f2d7b9ffba2722f563b00d7c6a9dea0d202b0d7acfacadfbd5c4060323791f", "blockNumber": 117639965, "action": "define Curiosity Gene component", "gasUsed": 81369, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 125, "hash": "0x3200e53e298702c894363259c75157032c87ceeb2ea541ff851df47373583004", "blockNumber": 117639970, "action": "define Empathy Gene component", "gasUsed": 81381, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 126, "hash": "0x3b01df7f455306ad275c24c4060ae97e23f70d155f7dde8caedd4ab3e55b8831", "blockNumber": 117639972, "action": "define Humor Gene component", "gasUsed": 81381, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 127, "hash": "0x355b1eebe3e6a32569bf9818670698a61d90081991ea05d9546ab6c25d7e07ea", "blockNumber": 117639977, "action": "define Caution Gene component", "gasUsed": 81381, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 128, "hash": "0x2f4401cf33f7fbf8d465aa0f2914d10d8405330d707a4ef5da5e788f412ab232", "blockNumber": 117639979, "action": "define Expression Core component", "gasUsed": 81369, "effectiveGasPriceWei": 100000000, "status": 1 },
+    { "nonce": 129, "hash": "0x9dcffca44ceca8674ea32a21afb902b6b832c0c392fbd2da5b2e7a9b928130a9", "blockNumber": 117639985, "action": "seal Components catalog", "gasUsed": 49174, "effectiveGasPriceWei": 100000000, "status": 1 }
+  ],
+  "totalGasUsed": 11646051,
+  "actualGasCostWei": "1100617250000000",
+  "actualGasCostBNB": "0.00110061725",
+  "confirmedMaximumBudgetBNB": "0.0031",
+  "confirmedMaximumGasPriceWei": "200000000",
+  "postDeploymentChecks": {
+    "deployerNonce": 130,
+    "exactFinalLaunchPreflightBlock": 117640407,
+    "exactLaunchSimulationMatchesPredictedAddress": true,
+    "predictedTokenRuntimeCodePresent": false,
+    "componentCatalogSealed": true,
+    "totalDefinedComponentCap": 100000,
+    "reciprocalBindingsMatch": true,
+    "finalTokenCreationBroadcast": false
+  }
+}

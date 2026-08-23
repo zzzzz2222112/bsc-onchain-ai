@@ -52,7 +52,7 @@ A listing is a non-custodial offer for one AI or a quantity of one component ID.
 | Maximum memory capacity | 8 | 8 |
 | Maximum additional response variants | 2 | 2 |
 
-These values have no owner setter in their respective reference implementations. Token Mode is preconfigured against the future Flap token address and MUST NOT be presented as a production deployment before the final token-creation transaction and post-deployment verification complete.
+These values have no owner setter in their respective reference implementations. The Token Mode stack is predeployed on BSC mainnet and preconfigured against future Flap token address `0x30e892840E5E37083c986012934Bd845f8157777`. Because that address does not yet contain token runtime code, the stack MUST be described as predeployed rather than live production until the final token-creation transaction and post-launch verification complete.
 
 ## 5. AI creation
 

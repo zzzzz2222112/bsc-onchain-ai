@@ -108,6 +108,7 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
   const [error, setError] = useState("");
   const [lastTx, setLastTx] = useState<Hash | null>(null);
   const [meta, setMeta] = useState<ProtocolMeta | null>(null);
+  const [paymentTokenLive, setPaymentTokenLive] = useState(!tokenMode);
   const [componentBalances, setComponentBalances] = useState<Record<number, bigint>>({});
   const [name, setName] = useState("");
   const [autoUpgrade, setAutoUpgrade] = useState(true);
@@ -185,6 +186,17 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
     const task = window.setTimeout(() => { if (deployed) void loadMeta(); }, 0);
     return () => window.clearTimeout(task);
   }, [deployed, loadMeta]);
+
+  useEffect(() => {
+    if (!tokenMode || !paymentTokenAddress) return;
+    let cancelled = false;
+    void publicClient.getCode({ address: paymentTokenAddress }).then((code) => {
+      if (!cancelled) setPaymentTokenLive(Boolean(code && code !== "0x"));
+    }).catch(() => {
+      if (!cancelled) setPaymentTokenLive(false);
+    });
+    return () => { cancelled = true; };
+  }, [paymentTokenAddress, publicClient, tokenMode]);
 
   useEffect(() => {
     const task = window.setTimeout(() => { void loadBalances(account); }, 0);
@@ -396,6 +408,9 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
     {tokenMode && <section className={styles.notice} aria-label="TINYAI 发币参数">
       <div><strong>TinyAI / TINYAI</strong><p>以 NVDAB 为 Flap 报价资产；买入税 1%，卖出税 1%，从发币交易起持续 30 天。AI 与单个组件均固定为 500 TINYAI。</p></div>
     </section>}
+    {tokenMode && !paymentTokenLive && <section className={styles.notice} role="status">
+      <div><strong>Token Mode 协议已预部署，TINYAI 尚未创建</strong><p>合约地址和绑定已公开，但代币 CA 目前没有运行时代码。Mint 与代币市场操作会保持禁用，最终发币完成后刷新页面即可自动启用。</p></div>
+    </section>}
     {wrongChain && <section className={styles.notice} role="alert">
       <div><strong>钱包网络不匹配</strong><p>钱包当前是 Chain {walletChain}，Mint 使用 {config.chainName}（Chain {config.chainId}）。</p></div>
       <button type="button" onClick={switchNetwork} disabled={busy}>{switchLabel}</button>
@@ -412,8 +427,8 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
         <form className={styles.form} onSubmit={mintAI}>
           <label>名字<input value={name} onChange={(event) => setName(event.target.value)} placeholder="例如 MOMO" maxLength={20} /></label>
           <label className={styles.check}><input type="checkbox" checked={autoUpgrade} onChange={(event) => setAutoUpgrade(event.target.checked)} />未来发布更强大脑时自动升级</label>
-          <button className={styles.primary} type="submit" disabled={!deployed || busy || !account || wrongChain || !meta || meta.totalSupply >= meta.maxSupply}>
-            {!account ? "先连接钱包" : meta && meta.totalSupply >= meta.maxSupply ? "10,000 只已全部 Mint" : `Mint AI · ${meta ? formatPrice(meta.mintPrice) : "-"} ${paymentSymbol}`}
+          <button className={styles.primary} type="submit" disabled={!deployed || !paymentTokenLive || busy || !account || wrongChain || !meta || meta.totalSupply >= meta.maxSupply}>
+            {!paymentTokenLive ? "等待 TINYAI 上线" : !account ? "先连接钱包" : meta && meta.totalSupply >= meta.maxSupply ? "10,000 只已全部 Mint" : `Mint AI · ${meta ? formatPrice(meta.mintPrice) : "-"} ${paymentSymbol}`}
           </button>
           <small>不限每个钱包的数量。Mint 完成后，到“我的 AI”查看你拥有的全部 AI。{tokenMode && config.holderVaultAddress ? " 每只 AI 同时对应一个新币交易税奖励份额。" : ""}</small>
         </form>
@@ -439,7 +454,7 @@ export function MintConsole({ config }: { config: DeploymentConfig }) {
           <div><b>0{item.id}</b><span>钱包持有 {balance.toString()}</span></div>
           <h3>{item.name}</h3><p>{item.effect}</p>
           <small>{definition ? `${formatPrice(definition.mintPrice)} ${paymentSymbol} · ${definition.minted}/${definition.cap}` : "读取中"}</small>
-          <div><button className={styles.primary} type="button" onClick={() => { void mintComponent(item.id); }} disabled={!definition?.publicMintEnabled || !meta?.catalogSealed || definition.minted >= definition.cap || !account || wrongChain || busy}>{definition && definition.minted >= definition.cap ? "售罄" : "Mint 1 个"}</button></div>
+          <div><button className={styles.primary} type="button" onClick={() => { void mintComponent(item.id); }} disabled={!paymentTokenLive || !definition?.publicMintEnabled || !meta?.catalogSealed || definition.minted >= definition.cap || !account || wrongChain || busy}>{!paymentTokenLive ? "等待 TINYAI 上线" : definition && definition.minted >= definition.cap ? "售罄" : "Mint 1 个"}</button></div>
         </article>;
       })}</div>
     </section>
