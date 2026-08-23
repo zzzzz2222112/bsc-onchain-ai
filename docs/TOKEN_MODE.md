@@ -44,14 +44,14 @@ Rewards attach to the AI identity:
 The token is intentionally created last:
 
 1. Set `FLAP_SALT_OUTPUT` to a new private path outside the repository, then run `web/scripts/mine-flap-salt.mjs` locally to find a Tax V3 address ending in `7777`. The script writes the salt only to that new file and prints only the safe predicted CA. Keep the file outside Git and public logs.
-2. Reserve that salt for Tax V3 with `LockFlapSaltForTinyAI.s.sol`. The fee read from the Portal must equal the separately approved `FLAP_SALT_LOCK_FEE` value.
+2. Preferably reserve that salt for Tax V3 with `LockFlapSaltForTinyAI.s.sol`. The fee read from the Portal must equal the separately approved `FLAP_SALT_LOCK_FEE` value. An operator who explicitly accepts front-running risk may instead leave it unlocked and set `FLAP_REQUIRE_SALT_LOCK=false` only for the final creation transaction.
 3. Deploy `TinyAIHolderVault` with immutable reward token `NVDAB`.
 4. Deploy Token Mode Components, Protocol and Market against the empty predicted token address. Bind the Vault and Components to the Protocol once.
 5. Simulate `Portal.newTokenV6` and require its return value to equal the prebound address.
 6. Create the Flap token with `NVDAB` as quote token, `quoteAmt=0`, the Vault as beneficiary and `mktBps=10000`.
 7. Read back token, quote token, TaxProcessor, Vault binding, payment-token binding, tax configuration and code hashes before enabling the frontend.
 
-An **unlocked** salt becomes visible in the public mempool and can be copied by a front-runner. The official creation script therefore refuses to launch unless the Portal reports that the deployer already locked this salt for Tax V3. The lock transaction itself reveals the salt too, so submit that reservation through a separately verified protected path. Keep the salt outside logs and Git; plain public-mempool submission is not treated as safe merely because the salt was private beforehand.
+An **unlocked** salt becomes visible in the public mempool and can be copied by a front-runner. The official creation script therefore requires a deployer-owned Tax V3 lock by default. `FLAP_REQUIRE_SALT_LOCK=false` is an explicit override: it accepts only a completely empty lock entry and still aborts if another address has locked the salt. The lock transaction itself reveals the salt too, so a reservation should use a separately verified protected path. Keep the salt outside logs and Git; plain public-mempool submission is not treated as safe merely because the salt was private beforehand.
 
 With an ERC-20 quote asset, Flap currently documents an additional `1 gwei` native value on tax-token creation. `quoteAmt=0` means no initial NVDAB inventory is deposited; it does not remove normal BSC deployment gas or that interface-required `1 gwei` value.
 
@@ -78,6 +78,7 @@ Private launch configuration:
 ```dotenv
 FLAP_QUOTE_TOKEN=0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436
 FLAP_TOKEN_SALT=0xPrivateUntilLaunch
+FLAP_REQUIRE_SALT_LOCK=true
 FLAP_SALT_LOCK_FEE=10000000000000000
 PAYMENT_TOKEN=0xPredicted7777Address
 HOLDER_VAULT=0xDeployedHolderVault

@@ -27,10 +27,12 @@ Token Mode is a separate deployment path for a future Flap Tax Token V3. AI and 
 The required order is:
 
 1. mine the deterministic Flap salt with `web/scripts/mine-flap-salt.mjs` and keep the salt outside the Git worktree;
-2. lock that salt to Token V3 with `LockFlapSaltForTinyAI.s.sol` through a protected submission path;
+2. preferably lock that salt to Token V3 with `LockFlapSaltForTinyAI.s.sol` through a protected submission path;
 3. deploy `TinyAIHolderVault` and the complete token-settled protocol stack against the predicted token address; and
 4. only after reciprocal binding checks pass, create the Flap token with `CreateFlapTokenForTinyAI.s.sol`.
 
 None of these scripts broadcasts unless `--broadcast` is explicitly supplied. The release candidate is not a production deployment until the final token creation and live-chain verification records are published. See `../docs/TOKEN_MODE.md` for the full invariant and validation checklist.
+
+`CreateFlapTokenForTinyAI.s.sol` defaults to `FLAP_REQUIRE_SALT_LOCK=true`. Setting it to `false` permits an unlocked launch only when the Portal still reports an entirely empty lock entry. It never permits a salt locked by another address or for another token version. An unlocked public launch exposes the salt before inclusion and can be front-run; disabling the lock is an explicit operational risk choice, not an equivalent security mode.
 
 Every data blob starts with `STOP`, so an accidental call returns immediately instead of executing model bytes as opcodes. There is no proxy, owner, pause, blacklist, fee setter, model setter, treasury setter, or post-deploy mint function. A new model requires a new deployment.

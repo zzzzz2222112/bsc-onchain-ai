@@ -97,6 +97,7 @@ contract CreateFlapTokenForTinyAI is Script {
         uint256 antiFarmerDuration = vm.envOr("FLAP_ANTI_FARMER_DURATION", uint256(0));
         uint256 quoteAmount = vm.envOr("FLAP_INITIAL_QUOTE_AMOUNT", uint256(0));
         uint256 callValue = vm.envOr("FLAP_CALL_VALUE", ERC20_QUOTE_CREATION_VALUE);
+        bool requireSaltLock = vm.envOr("FLAP_REQUIRE_SALT_LOCK", true);
         string memory tokenName = vm.envString("FLAP_TOKEN_NAME");
         string memory tokenSymbol = vm.envString("FLAP_TOKEN_SYMBOL");
 
@@ -105,8 +106,7 @@ contract CreateFlapTokenForTinyAI is Script {
         require(expectedToken != address(0) && expectedToken.code.length == 0, "EXPECTED_TOKEN_CA_NOT_EMPTY");
         require(_predict(address(portal), salt) == expectedToken, "SALT_DOES_NOT_MATCH_EXPECTED_CA");
         IFlapPortalV6.SaltLockEntry memory saltLock = portal.getSaltLock(salt);
-        require(saltLock.locker == deployer, "SALT_MUST_BE_LOCKED_BY_DEPLOYER");
-        require(saltLock.tokenVersion == TOKEN_TAXED_V3, "SALT_LOCK_VERSION_MISMATCH");
+        _validateSaltLock(saltLock, deployer, requireSaltLock);
         require(address(holderVault).code.length > 0, "INVALID_HOLDER_VAULT");
         require(address(holderVault.rewardToken()) == quoteToken, "VAULT_REWARD_ASSET_MISMATCH");
         address boundProtocol = holderVault.protocol();
@@ -176,6 +176,19 @@ contract CreateFlapTokenForTinyAI is Script {
         console2.log("commission receiver", address(0));
         console2.log("predeployed TinyAI protocol", boundProtocol);
         console2.log("launch completed: the prebound Token Mode stack is now live");
+    }
+
+    function _validateSaltLock(IFlapPortalV6.SaltLockEntry memory saltLock, address deployer, bool requireSaltLock)
+        internal
+        pure
+    {
+        if (saltLock.locker == address(0)) {
+            require(saltLock.tokenVersion == 0, "INVALID_EMPTY_SALT_LOCK");
+            require(!requireSaltLock, "SALT_MUST_BE_LOCKED_BY_DEPLOYER");
+        } else {
+            require(saltLock.locker == deployer, "SALT_LOCKED_BY_ANOTHER_ADDRESS");
+            require(saltLock.tokenVersion == TOKEN_TAXED_V3, "SALT_LOCK_VERSION_MISMATCH");
+        }
     }
 
     function _predict(address portal, bytes32 salt) private pure returns (address predicted) {
